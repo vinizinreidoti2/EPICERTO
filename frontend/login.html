@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Controle EPI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="brand-panel">
+            <div class="brand-content">
+                <div class="logo-box"></div>
+                <h1>Controle total<br>dos seus EPIs</h1>
+                <p>Acompanhe estoque, retiradas e sua equipe em um só lugar.</p>
+            </div>
+        </div>
+
+        <div class="form-panel">
+            <div class="form-content">
+                <h2>Entrar</h2>
+                <p class="subtitle">Selecione seu perfil de acesso</p>
+
+                <form id="loginForm" onsubmit="realizarLogin(event)">
+                    <div class="profile-selector">
+                        <button type="button" id="btnGestor" class="profile-btn active" onclick="selecionarPerfil('gestor')">Gestor</button>
+                        <button type="button" id="btnFuncionario" class="profile-btn" onclick="selecionarPerfil('funcionario')">Funcionário</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="usuario">E-mail ou Matrícula</label>
+                        <input type="text" id="usuario" placeholder="gestor@empresa.com ou MAT001" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="senha">Senha</label>
+                        <input type="password" id="senha" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn-principal">ENTRAR</button>
+                    <a href="#" class="forgot-link">Esqueceu a senha? Fale com o TI</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let perfilAtual = 'gestor';
+
+        function selecionarPerfil(perfil) {
+            perfilAtual = perfil;
+            document.getElementById('btnGestor').classList.toggle('active', perfil === 'gestor');
+            document.getElementById('btnFuncionario').classList.toggle('active', perfil === 'funcionario');
+        }
+
+        async function realizarLogin(event) {
+            event.preventDefault();
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+
+            try {
+                const resposta = await fetch('../backend/login.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha, perfil: perfilAtual })
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    localStorage.setItem('usuarioConectado', JSON.stringify(resultado.usuario));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert(resultado.mensagem);
+                }
+            } catch (erro) {
+                alert("Erro ao ligar ao backend PHP!");
+            }
+        }
+    </script>
+</body>
+</html>
