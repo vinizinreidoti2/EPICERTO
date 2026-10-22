@@ -7,42 +7,53 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="login-wrapper">
-        <div class="brand-panel">
-            <div class="brand-content">
-                <div class="logo-box"></div>
-                <h1>Controle total<br>dos seus EPIs</h1>
-                <p>Acompanhe estoque, retiradas e sua equipe em um só lugar.</p>
+
+    <!-- BARRA SUPERIOR (HEADER ESTILO PORTAL DE EPIS) -->
+    <header class="top-header">
+        <div class="brand-logo">
+            <div class="brand-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                </svg>
             </div>
+            <div class="brand-title">EPI <span>CERTO</span></div>
         </div>
+        <div class="header-tag">Sistema de Gestão de EPIs</div>
+    </header>
 
-        <div class="form-panel">
-            <div class="form-content">
-                <h2>Entrar</h2>
-                <p class="subtitle">Selecione seu perfil de acesso</p>
-
-                <form id="loginForm" onsubmit="realizarLogin(event)">
-                    <div class="profile-selector">
-                        <button type="button" id="btnGestor" class="profile-btn active" onclick="selecionarPerfil('gestor')">Gestor</button>
-                        <button type="button" id="btnFuncionario" class="profile-btn" onclick="selecionarPerfil('funcionario')">Funcionário</button>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="usuario">E-mail ou Matrícula</label>
-                        <input type="text" id="usuario" placeholder="gestor@empresa.com ou MAT001" required>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="senha">Senha</label>
-                        <input type="password" id="senha" placeholder="••••••••" required>
-                    </div>
-
-                    <button type="submit" class="btn-principal">ENTRAR</button>
-                    <a href="#" class="forgot-link">Esqueceu a senha? Fale com o TI</a>
-                </form>
+    <!-- CONTEÚDO CENTRALIZADO COM CARTÃO DE LOGIN -->
+    <main class="main-container">
+        <div class="login-card">
+            <div class="card-header">
+                <h2>Acesso ao Sistema</h2>
+                <p>Informe suas credenciais para entrar</p>
             </div>
+
+            <form id="loginForm" onsubmit="realizarLogin(event)">
+                <div class="profile-selector">
+                    <button type="button" id="btnGestor" class="profile-btn active" onclick="selecionarPerfil('gestor')">Gestor</button>
+                    <button type="button" id="btnFuncionario" class="profile-btn" onclick="selecionarPerfil('funcionario')">Funcionário</button>
+                </div>
+
+                <div class="input-group">
+                    <label for="usuario">E-mail ou Matrícula</label>
+                    <input type="text" id="usuario" placeholder="gestor@empresa.com ou MAT001" required autocomplete="username">
+                </div>
+
+                <div class="input-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-principal">ENTRAR NO SISTEMA</button>
+                <a href="#" class="forgot-link">Esqueceu a senha? Fale com o TI</a>
+            </form>
         </div>
-    </div>
+    </main>
+
+    <footer class="footer-bar">
+        &copy; 2026 EPI CERTO - Controle e Gestão de Equipamentos de Proteção Individual
+    </footer>
 
     <script>
         let perfilAtual = 'gestor';
@@ -74,7 +85,7 @@
                     alert(resultado.mensagem);
                 }
             } catch (erro) {
-                alert("Erro ao ligar ao backend PHP!");
+                alert("Erro ao conectar com o servidor PHP!");
             }
         }
     </script>

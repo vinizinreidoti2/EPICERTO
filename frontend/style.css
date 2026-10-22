@@ -1,21 +1,225 @@
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-body { height: 100vh; width: 100vw; overflow: hidden; }
-.login-wrapper { display: flex; width: 100%; height: 100vh; }
-.brand-panel { flex: 1.2; background-color: #0a255c; color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 60px; }
-.brand-content { max-width: 420px; }
-.logo-box { width: 52px; height: 52px; background-color: #f59e0b; margin-bottom: 24px; }
-.brand-content h1 { font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
-.brand-content p { font-size: 13px; color: #e2e8f0; line-height: 1.5; }
-.form-panel { flex: 1; background-color: #ffffff; display: flex; align-items: center; justify-content: center; padding: 60px; }
-.form-content { width: 100%; max-width: 320px; }
-.form-content h2 { font-size: 22px; color: #000000; font-weight: 700; margin-bottom: 4px; }
-.subtitle { font-size: 12px; color: #666666; margin-bottom: 20px; }
-.profile-selector { display: flex; gap: 8px; background-color: #f1f5f9; padding: 4px; border-radius: 4px; margin-bottom: 20px; }
-.profile-btn { flex: 1; padding: 8px; border: none; background: transparent; font-size: 12px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 3px; }
-.profile-btn.active { background-color: #0a255c; color: #ffffff; }
-.input-group { margin-bottom: 16px; }
-.input-group label { display: block; font-size: 12px; font-weight: 600; color: #111827; margin-bottom: 6px; }
-.input-group input { width: 100%; height: 38px; padding: 8px 12px; background-color: #e5e7eb; border: 1px solid #9ca3af; border-radius: 2px; font-size: 13px; outline: none; }
-.btn-principal { width: 100%; height: 38px; background-color: #0a255c; color: #ffffff; border: none; border-radius: 2px; font-size: 12px; font-weight: 700; cursor: pointer; margin-top: 12px; margin-bottom: 20px; }
-.btn-principal:hover { opacity: 0.9; }
-.forgot-link { display: block; text-align: center; font-size: 11px; color: #888888; text-decoration: none; }
+/* RESET E FONTE */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+}
+
+/* ESTRUTURA GLOBAL E FUNDO UNIFICADO */
+body { 
+    min-height: 100vh; 
+    width: 100vw; 
+    background-color: #081a40; 
+    background-image: radial-gradient(circle at 50% 20%, #0d2c6c 0%, #061533 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-x: hidden;
+}
+
+/* BARRA SUPERIOR (HEADER TIPO PORTAL EPI) */
+.top-header {
+    width: 100%;
+    height: 64px;
+    background-color: rgba(10, 37, 92, 0.95);
+    border-bottom: 2px solid #f59e0b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    width: 34px;
+    height: 34px;
+    background-color: #f59e0b;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #0a255c;
+}
+
+.brand-title {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.brand-title span {
+    color: #f59e0b;
+}
+
+.header-tag {
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ÁREA CENTRALIZADA DO CARTÃO DE LOGIN */
+.main-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 36px 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+.card-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.card-header h2 {
+    font-size: 24px;
+    color: #0a255c;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.card-header p {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* SELETOR DE PERFIL (BOTÕES GESTOR / FUNCIONÁRIO) */
+.profile-selector { 
+    display: flex; 
+    gap: 6px; 
+    background-color: #f1f5f9; 
+    padding: 4px; 
+    border-radius: 10px; 
+    margin-bottom: 22px; 
+    border: 1px solid #e2e8f0;
+}
+
+.profile-btn { 
+    flex: 1; 
+    padding: 9px; 
+    border: none; 
+    background: transparent; 
+    font-size: 13px; 
+    font-weight: 700; 
+    color: #64748b; 
+    cursor: pointer; 
+    border-radius: 7px; 
+    transition: all 0.2s ease;
+}
+
+.profile-btn.active { 
+    background-color: #0a255c; 
+    color: #ffffff; 
+    box-shadow: 0 4px 10px rgba(10, 37, 92, 0.25);
+}
+
+/* CAMPOS DE FORMULÁRIO */
+.input-group { 
+    margin-bottom: 18px; 
+}
+
+.input-group label { 
+    display: block; 
+    font-size: 12px; 
+    font-weight: 700; 
+    color: #334155; 
+    margin-bottom: 6px; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.input-group input { 
+    width: 100%; 
+    height: 42px; 
+    padding: 10px 14px; 
+    background-color: #f8fafc; 
+    border: 1.5px solid #cbd5e1; 
+    border-radius: 8px; 
+    font-size: 14px; 
+    color: #0f172a;
+    outline: none; 
+    transition: all 0.2s ease;
+}
+
+.input-group input:focus {
+    background-color: #ffffff;
+    border-color: #0a255c;
+    box-shadow: 0 0 0 3px rgba(10, 37, 92, 0.12);
+}
+
+/* BOTÃO PRINCIPAL DE ENTRADA */
+.btn-principal { 
+    width: 100%; 
+    height: 44px; 
+    background-color: #0a255c; 
+    color: #ffffff; 
+    border: none; 
+    border-radius: 8px; 
+    font-size: 13px; 
+    font-weight: 800; 
+    letter-spacing: 0.8px;
+    cursor: pointer; 
+    margin-top: 8px; 
+    margin-bottom: 20px; 
+    box-shadow: 0 6px 14px rgba(10, 37, 92, 0.3);
+    transition: all 0.2s ease;
+    border-bottom: 3px solid #061739;
+}
+
+.btn-principal:hover { 
+    background-color: #0d317a;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(10, 37, 92, 0.4);
+}
+
+.btn-principal:active {
+    transform: translateY(1px);
+    border-bottom-width: 1px;
+}
+
+/* RODAPÉ DO CARTÃO */
+.forgot-link { 
+    display: block; 
+    text-align: center; 
+    font-size: 12px; 
+    font-weight: 600;
+    color: #64748b; 
+    text-decoration: none; 
+}
+
+.forgot-link:hover {
+    color: #0a255c;
+    text-decoration: underline;
+}
+
+/* RODAPÉ DA PÁGINA */
+.footer-bar {
+    text-align: center;
+    padding: 16px;
+    color: #64748b;
+    font-size: 12px;
+}

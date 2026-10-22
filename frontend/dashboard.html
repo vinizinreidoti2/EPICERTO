@@ -3,430 +3,621 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel - Controle EPI</title>
+    <title>Dashboard - EPI CERTO</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-100 flex h-screen overflow-hidden">
+<body class="bg-slate-100 min-h-screen flex flex-col">
 
-    <!-- SIDEBAR -->
-    <aside class="w-64 bg-[#0a255c] text-white flex flex-col justify-between p-6 shrink-0">
-        <div>
-            <div class="flex items-center gap-3 mb-8">
-                <div class="w-8 h-8 bg-[#f59e0b]"></div>
-                <h1 class="font-bold text-lg tracking-wider">EPI CERTO</h1>
-            </div>
-
-            <nav class="space-y-3">
-                <button onclick="trocarAba('aba-dashboard', this)" class="btn-nav w-full text-left py-2.5 px-4 rounded bg-white text-[#0a255c] font-semibold transition">Dashboard</button>
-                <button onclick="trocarAba('aba-historico', this)" class="btn-nav w-full text-left py-2.5 px-4 rounded bg-slate-200/20 text-white font-semibold hover:bg-white hover:text-[#0a255c] transition">Histórico de Retiradas</button>
-                <button id="menuEstoque" onclick="trocarAba('aba-estoque', this)" class="aba-gestor btn-nav w-full text-left py-2.5 px-4 rounded bg-slate-200/20 text-white font-semibold hover:bg-white hover:text-[#0a255c] transition">Gestão de Estoque</button>
-                <button id="menuFuncionarios" onclick="trocarAba('aba-funcionarios', this)" class="aba-gestor btn-nav w-full text-left py-2.5 px-4 rounded bg-slate-200/20 text-white font-semibold hover:bg-white hover:text-[#0a255c] transition">Usuários & Acessos</button>
-            </nav>
-        </div>
-
-        <div class="border-t border-slate-700 pt-4 flex items-center justify-between">
+    <!-- CABEÇALHO -->
+    <header class="bg-[#0a255c] text-white border-b-4 border-[#f59e0b] shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-slate-300 rounded-full flex items-center justify-center text-slate-800 font-bold" id="avatarUser">P</div>
+                <div class="w-9 h-9 bg-[#f59e0b] rounded-lg flex items-center justify-center text-[#0a255c] font-black">
+                    EPI
+                </div>
                 <div>
-                    <p class="text-sm font-medium leading-tight" id="nomeUser">Carregando...</p>
-                    <p class="text-[10px] text-amber-400 font-bold tracking-wider" id="cargoUser">GESTOR</p>
+                    <h1 class="text-xl font-bold tracking-tight">EPI <span class="text-[#f59e0b]">CERTO</span></h1>
+                    <p class="text-xs text-slate-300">Sistema de Gestão de Equipamentos</p>
                 </div>
             </div>
-            <button onclick="sair()" class="text-xs text-slate-400 hover:text-white transition">Sair</button>
+            <div class="flex items-center gap-4">
+                <div class="text-right">
+                    <p class="text-sm font-semibold" id="usuarioNome">Carregando...</p>
+                    <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded uppercase font-bold" id="usuarioPerfil">--</span>
+                </div>
+                <button onclick="desconectar()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-3 py-2 rounded-lg font-semibold transition">
+                    Sair
+                </button>
+            </div>
         </div>
-    </aside>
+    </header>
 
     <!-- CONTEÚDO PRINCIPAL -->
-    <main class="flex-1 p-8 overflow-y-auto">
-        <section id="aba-dashboard" class="aba-conteudo space-y-6">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-800" id="tituloBoasVindas">Visão Geral do Sistema</h2>
-                    <p class="text-slate-500 text-sm">Acompanhamento e controle em tempo real.</p>
-                </div>
-                <button onclick="abrirModal('modalRetiradaManual')" class="acao-gestor bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">⚡ Retirada Manual</button>
+    <main class="max-w-7xl mx-auto px-6 py-8 flex-1 w-full">
+
+        <!-- PAINEL DO GESTOR -->
+        <div id="painelGestor" class="hidden space-y-8">
+            
+            <!-- ABAS DO GESTOR -->
+            <div class="flex border-b border-slate-300 space-x-4">
+                <button onclick="mudarAba('estoque')" id="tabEstoque" class="py-2 px-4 font-bold border-b-2 border-[#0a255c] text-[#0a255c]">Estoque de EPIs</button>
+                <button onclick="mudarAba('usuarios')" id="tabUsuarios" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Gestão de Usuários</button>
+                <button onclick="mudarAba('solicitacoes')" id="tabSolicitacoes" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Solicitações dos Funcionários</button>
             </div>
 
-            <div class="grid grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-slate-500 text-sm font-medium">Total de Retiradas</p>
-                    <p class="text-3xl font-bold text-[#0a255c] mt-1" id="cardTotalRetiradas">0</p>
+            <!-- SECÇÃO 1: ESTOQUE DA EQUIPE -->
+            <div id="secEstoque" class="space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Controle de Estoque</h2>
+                        <p class="text-xs text-slate-500">Ajuste o estoque (+/-), cadastre ou remova EPIs da base de dados</p>
+                    </div>
+                    <button onclick="abrirModalEpi()" class="bg-[#0a255c] hover:bg-[#061739] text-white text-sm font-bold px-4 py-2 rounded-lg transition shadow">
+                        + Cadastrar Novo EPI
+                    </button>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-slate-500 text-sm font-medium">Itens no Estoque</p>
-                    <p class="text-3xl font-bold text-amber-500 mt-1" id="cardTotalEstoque">0</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-slate-500 text-sm font-medium">Usuários Cadastrados</p>
-                    <p class="text-3xl font-bold text-emerald-600 mt-1" id="cardTotalFuncionarios">0</p>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="p-4">Nome do EPI</th>
+                                <th class="p-4">Quantidade</th>
+                                <th class="p-4">Estoque Mínimo</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-center">Ajuste Rápido</th>
+                                <th class="p-4 text-center">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaEpis" class="divide-y divide-slate-100">
+                            <!-- Inserido via JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </section>
 
-        <!-- HISTÓRICO -->
-        <section id="aba-historico" class="aba-conteudo space-y-6 hidden">
-            <h2 class="text-2xl font-bold text-slate-800">Histórico de Retiradas</h2>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+            <!-- SECÇÃO 2: USUÁRIOS E EQUIPE -->
+            <div id="secUsuarios" class="hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div>
+                        <h2 class="text-lg font-bold text-slate-800">Equipe e Acessos</h2>
+                        <p class="text-xs text-slate-500">Cadastre ou remova acessos de gestores e funcionários</p>
+                    </div>
+                    <button onclick="abrirModalUsuario()" class="bg-[#0a255c] hover:bg-[#061739] text-white text-sm font-bold px-4 py-2 rounded-lg transition shadow">
+                        + Cadastrar Usuário
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="p-4">Nome</th>
+                                <th class="p-4">Matrícula</th>
+                                <th class="p-4">E-mail</th>
+                                <th class="p-4">Setor</th>
+                                <th class="p-4">Perfil</th>
+                                <th class="p-4 text-center">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaUsuarios" class="divide-y divide-slate-100">
+                            <!-- Inserido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SECÇÃO 3: SOLICITAÇÕES DOS FUNCIONÁRIOS -->
+            <div id="secSolicitacoes" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800">Pedidos de Troca e Novos EPIs</h2>
+                    <p class="text-xs text-slate-500">Aprove ou recuse os pedidos feitos pela equipe</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="p-4">Funcionário</th>
+                                <th class="p-4">EPI Solicitado</th>
+                                <th class="p-4">Motivo</th>
+                                <th class="p-4">Data</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-center">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaGestorSolicitacoes" class="divide-y divide-slate-100">
+                            <!-- Inserido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAINEL DO FUNCIONÁRIO -->
+        <div id="painelFuncionario" class="hidden space-y-8">
+            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
+                <h2 class="text-lg font-bold text-slate-800 mb-1">Solicitar EPI ou Troca</h2>
+                <p class="text-xs text-slate-500 mb-6">Abra um chamado para trocar um equipamento danificado ou solicitar novo item.</p>
+
+                <form onsubmit="enviarSolicitacao(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Equipamento (EPI)</label>
+                        <select id="solicitarEpiNome" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#0a255c] outline-none" required>
+                            <option value="">Selecione um EPI...</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo do Pedido</label>
+                        <select id="solicitarMotivo" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#0a255c] outline-none" required>
+                            <option value="Troca por Desgaste Natural">Troca por Desgaste Natural</option>
+                            <option value="Equipamento Danificado / Quebrado">Equipamento Danificado / Quebrado</option>
+                            <option value="Tamanho Incorreto / Inadequado">Tamanho Incorreto / Inadequado</option>
+                            <option value="Primeiro Fornecimento / Perda">Primeiro Fornecimento / Perda</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="w-full bg-[#0a255c] hover:bg-[#061739] text-white font-bold py-3 rounded-lg text-sm transition shadow">
+                        ENVIAR SOLICITAÇÃO
+                    </button>
+                </form>
+            </div>
+
+            <!-- HISTÓRICO DE SOLICITAÇÕES DO FUNCIONÁRIO -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden max-w-4xl mx-auto">
+                <div class="p-4 border-b border-slate-200 bg-slate-50">
+                    <h3 class="font-bold text-slate-800 text-sm">Minhas Solicitações Recentes</h3>
+                </div>
                 <table class="w-full text-left text-sm">
-                    <thead class="border-b border-slate-200 text-slate-500">
-                        <tr><th class="p-3">Funcionário</th><th class="p-3">EPI</th><th class="p-3">Data/Hora</th><th class="p-3">Método</th></tr>
-                    </thead>
-                    <tbody id="tabelaHistorico"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- ESTOQUE -->
-        <section id="aba-estoque" class="aba-conteudo space-y-6 hidden">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-slate-800">Gestão de Estoque</h2>
-                <button onclick="abrirModal('modalNovoEPI')" class="bg-[#0a255c] text-white px-4 py-2 rounded-lg text-sm font-semibold">+ Adicionar / Atualizar EPI</button>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b border-slate-200 text-slate-500">
+                    <thead class="bg-slate-100 text-slate-600 uppercase text-xs font-bold">
                         <tr>
-                            <th class="p-3">ID</th>
-                            <th class="p-3">EPI</th>
-                            <th class="p-3">Quantidade</th>
-                            <th class="p-3">Estoque Mínimo</th>
-                            <th class="p-3 acao-gestor text-right">Ações do Gestor</th>
+                            <th class="p-4">EPI</th>
+                            <th class="p-4">Motivo</th>
+                            <th class="p-4">Data</th>
+                            <th class="p-4">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelaEstoque"></tbody>
+                    <tbody id="tabelaMinhasSolicitacoes" class="divide-y divide-slate-100">
+                        <!-- Inserido via JS -->
+                    </tbody>
                 </table>
             </div>
-        </section>
+        </div>
 
-        <!-- USUÁRIOS -->
-        <section id="aba-funcionarios" class="aba-conteudo space-y-6 hidden">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-slate-800">Usuários & Acessos</h2>
-                <button onclick="abrirModal('modalNovoFuncionario')" class="bg-[#0a255c] text-white px-4 py-2 rounded-lg text-sm font-semibold">+ Novo Usuário</button>
-            </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-                <table class="w-full text-left text-sm">
-                    <thead class="border-b border-slate-200 text-slate-500">
-                        <tr>
-                            <th class="p-3">Matrícula</th>
-                            <th class="p-3">Nome</th>
-                            <th class="p-3">E-mail</th>
-                            <th class="p-3">Crachá</th>
-                            <th class="p-3">Setor</th>
-                            <th class="p-3">Perfil</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabelaFuncionarios"></tbody>
-                </table>
-            </div>
-        </section>
     </main>
 
-    <!-- MODAL OBRIGATÓRIO DE TROCA DE SENHA NO PRIMEIRO ACESSO -->
-    <div id="modalPrimeiroAcesso" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[100]">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md shadow-2xl border-2 border-amber-500">
-            <div class="text-center mb-4">
-                <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl font-bold">🔒</div>
-                <h3 class="text-xl font-bold text-slate-800">Primeiro Acesso Detectado</h3>
-                <p class="text-xs text-slate-500 mt-1">Por motivos de segurança, você precisa alterar sua senha temporária antes de continuar.</p>
-            </div>
-            <form onsubmit="alterarSenhaPrimeiroAcesso(event)">
-                <div class="mb-3">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nova Senha:</label>
-                    <input type="password" id="novaSenhaInput" placeholder="Digite sua nova senha" class="w-full border p-2.5 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none" required minlength="4">
+    <!-- MODAL 1: PRIMEIRO ACESSO (MUDAR SENHA) -->
+    <div id="modalPrimeiroAcesso" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-t-8 border-amber-500">
+            <h3 class="text-xl font-extrabold text-slate-900 mb-2">Primeiro Acesso Detectado!</h3>
+            <p class="text-sm text-slate-600 mb-6">Por motivos de segurança, crie uma nova senha individual antes de acessar o sistema.</p>
+            
+            <form onsubmit="salvarNovaSenha(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nova Senha</label>
+                    <input type="password" id="novaSenha" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500" required placeholder="Digite sua nova senha">
                 </div>
-                <div class="mb-4">
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Confirme a Nova Senha:</label>
-                    <input type="password" id="confirmaSenhaInput" placeholder="Repita a nova senha" class="w-full border p-2.5 rounded text-sm focus:ring-2 focus:ring-amber-500 outline-none" required minlength="4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Confirme a Nova Senha</label>
+                    <input type="password" id="confirmaSenha" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500" required placeholder="Repita a nova senha">
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded text-sm transition">Salvar Nova Senha e Entrar</button>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-lg text-sm transition shadow">
+                    ATUALIZAR SENHA E ENTRAR
+                </button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL NOVO USUÁRIO / ACESSO -->
-    <div id="modalNovoFuncionario" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-lg font-bold mb-4">Novo Usuário / Acesso</h3>
-            <form onsubmit="salvarModal(event, 'modalNovoFuncionario')">
-                <input type="text" placeholder="Nome Completo" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <input type="email" placeholder="E-mail de Acesso" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <input type="text" placeholder="Matrícula" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <input type="text" placeholder="Código Crachá" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <input type="text" placeholder="Setor" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <select class="w-full border p-2 mb-4 rounded text-sm font-semibold text-slate-700" required>
-                    <option value="funcionario">Perfil: Funcionário</option>
-                    <option value="gestor">Perfil: Gestor</option>
-                </select>
-                <p class="text-[11px] text-slate-400 mb-4">* A senha inicial padrão para este novo usuário será: <strong>123456</strong></p>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="fecharModal('modalNovoFuncionario')" class="px-4 py-2 border rounded text-xs">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-[#0a255c] text-white rounded text-xs">Criar Acesso</button>
+    <!-- MODAL 2: NOVO USUÁRIO -->
+    <div id="modalUsuario" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Cadastrar Novo Usuário</h3>
+            <form onsubmit="salvarUsuario(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nome Completo</label>
+                    <input type="text" id="cadNome" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Ex: Carlos Silva" required oninput="gerarEmailAutomatico(this.value)">
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL ADICIONAR EPI -->
-    <div id="modalNovoEPI" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-lg font-bold mb-4">Adicionar / Atualizar EPI</h3>
-            <form onsubmit="salvarModal(event, 'modalNovoEPI')">
-                <input type="text" placeholder="Nome do EPI (ex: Capacete, Luva)" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <input type="number" placeholder="Quantidade em Estoque" class="w-full border p-2 mb-2 rounded text-sm" required>
-                <input type="number" placeholder="Estoque Mínimo" class="w-full border p-2 mb-4 rounded text-sm" required>
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="fecharModal('modalNovoEPI')" class="px-4 py-2 border rounded text-xs">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-[#0a255c] text-white rounded text-xs">Salvar</button>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">E-mail de Acesso (Gerado Automático)</label>
+                    <input type="email" id="cadEmail" class="w-full border p-2.5 rounded-lg text-sm bg-slate-50" placeholder="carlos.silva@empresa.com" required>
                 </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- MODAL RETIRADA MANUAL -->
-    <div id="modalRetiradaManual" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 class="text-lg font-bold mb-4">Lançar Retirada</h3>
-            <form onsubmit="salvarModal(event, 'modalRetiradaManual')">
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Selecione o Funcionário:</label>
-                <select id="selectFuncionario" class="w-full border p-2 mb-3 rounded text-sm" required></select>
-
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Selecione o EPI:</label>
-                <select id="selectEPI" class="w-full border p-2 mb-4 rounded text-sm" required></select>
-
-                <div class="flex justify-end gap-2">
-                    <button type="button" onclick="fecharModal('modalRetiradaManual')" class="px-4 py-2 border rounded text-xs">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-amber-500 text-white rounded text-xs">Confirmar Retirada</button>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Matrícula</label>
+                        <input type="text" id="cadMatricula" class="w-full border p-2.5 rounded-lg text-sm" placeholder="MAT003" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Perfil</label>
+                        <select id="cadPerfil" class="w-full border p-2.5 rounded-lg text-sm bg-white">
+                            <option value="funcionario">Funcionário</option>
+                            <option value="gestor">Gestor</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Setor</label>
+                    <select id="cadSetor" class="w-full border p-2.5 rounded-lg text-sm bg-white" required>
+                        <option value="Produção">Produção</option>
+                        <option value="Manutenção">Manutenção</option>
+                        <option value="Logística">Logística</option>
+                        <option value="TI / Gestão">TI / Gestão</option>
+                        <option value="Segurança do Trabalho">Segurança do Trabalho</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-4">
+                    <button type="button" onclick="fecharModalUsuario()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-[#0a255c] text-white rounded-lg">Cadastrar</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- MODAL 3: CADASTRAR NOVO EPI -->
+    <div id="modalEpi" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Cadastrar Novo EPI</h3>
+            <form onsubmit="salvarEpi(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nome do Equipamento</label>
+                    <input type="text" id="epiNome" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Ex: Protetor Auricular Tipo Concha" required>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Quantidade Inicial</label>
+                        <input type="number" id="epiQuantidade" min="0" class="w-full border p-2.5 rounded-lg text-sm" placeholder="50" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Estoque Mínimo</label>
+                        <input type="number" id="epiEstoqueMinimo" min="1" class="w-full border p-2.5 rounded-lg text-sm" placeholder="10" required>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-4">
+                    <button type="button" onclick="fecharModalEpi()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-[#0a255c] text-white rounded-lg">Cadastrar EPI</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT INTEGRADO -->
     <script>
-        const usuarioLogado = JSON.parse(localStorage.getItem('usuarioConectado') || '{}');
+        let usuarioConectado = null;
 
-        function trocarAba(idAba, el) {
-            document.querySelectorAll('.aba-conteudo').forEach(s => s.classList.add('hidden'));
-            document.querySelectorAll('.btn-nav').forEach(b => { b.classList.remove('bg-white', 'text-[#0a255c]'); b.classList.add('bg-slate-200/20', 'text-white'); });
-            document.getElementById(idAba).classList.remove('hidden');
-            el.classList.remove('bg-slate-200/20', 'text-white');
-            el.classList.add('bg-white', 'text-[#0a255c]');
-        }
-
-        function abrirModal(id) { document.getElementById(id).classList.replace('hidden', 'flex'); }
-        function fecharModal(id) { document.getElementById(id).classList.replace('flex', 'hidden'); }
-        function sair() { localStorage.removeItem('usuarioConectado'); window.location.href = 'login.html'; }
-
-        async function carregarTudo() {
-            if (!usuarioLogado.nome) { window.location.href = 'login.html'; return; }
-            document.getElementById('nomeUser').innerText = usuarioLogado.nome;
-            document.getElementById('cargoUser').innerText = usuarioLogado.perfil.toUpperCase();
-            document.getElementById('avatarUser').innerText = usuarioLogado.nome.charAt(0);
-
-            // VERIFICAÇÃO DE PRIMEIRO ACESSO (Exibe modal de alteração de senha obrigatória)
-            if (parseInt(usuarioLogado.primeiro_acesso) === 1) {
-                abrirModal('modalPrimeiroAcesso');
-            }
-
-            if (usuarioLogado.perfil === 'funcionario') {
-                document.querySelectorAll('.aba-gestor, .acao-gestor').forEach(el => el.style.display = 'none');
-            }
-
-            await carregarFuncionarios();
-            await carregarEpis();
-            await carregarHistorico();
-        }
-
-        async function alterarSenhaPrimeiroAcesso(e) {
-            e.preventDefault();
-            const novaSenha = document.getElementById('novaSenhaInput').value;
-            const confirmaSenha = document.getElementById('confirmaSenhaInput').value;
-
-            if (novaSenha !== confirmaSenha) {
-                alert("⚠️ As senhas não coincidem!");
+        window.onload = function() {
+            const sessao = localStorage.getItem('usuarioConectado');
+            if (!sessao) {
+                window.location.href = 'login.html';
                 return;
             }
 
-            const res = await fetch('../backend/mudar_senha.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: usuarioLogado.id, nova_senha: novaSenha })
-            });
+            usuarioConectado = JSON.parse(sessao);
+            document.getElementById('usuarioNome').innerText = usuarioConectado.nome;
+            document.getElementById('usuarioPerfil').innerText = usuarioConectado.perfil;
 
-            const resData = await res.json();
-            if (res.ok) {
-                alert("🔑 Senha alterada com sucesso! Bem-vindo ao sistema.");
-                usuarioLogado.primeiro_acesso = 0;
-                localStorage.setItem('usuarioConectado', JSON.stringify(usuarioLogado));
-                fecharModal('modalPrimeiroAcesso');
+            if (parseInt(usuarioConectado.primeiro_acesso) === 1) {
+                document.getElementById('modalPrimeiroAcesso').classList.remove('hidden');
+                return;
+            }
+
+            if (usuarioConectado.perfil === 'gestor') {
+                document.getElementById('painelGestor').classList.remove('hidden');
+                carregarEpis();
+                carregarUsuarios();
+                carregarSolicitacoesGestor();
             } else {
-                alert("Erro: " + resData.mensagem);
+                document.getElementById('painelFuncionario').classList.remove('hidden');
+                carregarSelectEpis();
+                carregarMinhasSolicitacoes();
+            }
+        };
+
+        // GERAÇÃO AUTOMÁTICA DE E-MAIL (nome.sobrenome@empresa.com)
+        function gerarEmailAutomatico(nome) {
+            const inputEmail = document.getElementById('cadEmail');
+            if (!nome.trim()) {
+                inputEmail.value = '';
+                return;
+            }
+            const limpo = nome.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const partes = limpo.split(/\s+/).filter(p => p.length > 0);
+            
+            if (partes.length === 1) {
+                inputEmail.value = `${partes[0]}@empresa.com`;
+            } else if (partes.length > 1) {
+                inputEmail.value = `${partes[0]}.${partes[partes.length - 1]}@empresa.com`;
             }
         }
 
-        async function carregarFuncionarios() {
-            const res = await fetch('../backend/funcionarios.php');
-            const dados = await res.json();
-            const tbody = document.getElementById('tabelaFuncionarios');
-            const select = document.getElementById('selectFuncionario');
-            tbody.innerHTML = ''; select.innerHTML = '';
-            document.getElementById('cardTotalFuncionarios').innerText = dados.length;
-
-            dados.forEach(f => {
-                tbody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-3 font-semibold">${f.matricula}</td>
-                        <td class="p-3">${f.nome}</td>
-                        <td class="p-3 text-slate-500">${f.email || '-'}</td>
-                        <td class="p-3">${f.codigo_cracha}</td>
-                        <td class="p-3">${f.setor}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 text-xs rounded font-bold ${f.perfil === 'gestor' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}">${f.perfil.toUpperCase()}</span></td>
-                    </tr>`;
-                
-                if (f.perfil === 'funcionario') {
-                    select.innerHTML += `<option value="${f.nome}">${f.nome} (${f.matricula})</option>`;
-                }
-            });
-        }
-
-        async function carregarEpis() {
-            const res = await fetch('../backend/epis.php');
-            const dados = await res.json();
-            const tbody = document.getElementById('tabelaEstoque');
-            const select = document.getElementById('selectEPI');
-            tbody.innerHTML = ''; select.innerHTML = '';
-            let total = 0;
-
-            dados.forEach(e => {
-                total += parseInt(e.quantidade);
-
-                let badge = `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-bold">Normal</span>`;
-                let trStyle = "";
-
-                if (parseInt(e.quantidade) === 0) {
-                    badge = `<span class="bg-red-500 text-white px-2 py-0.5 rounded text-xs font-bold">Esgotado</span>`;
-                    trStyle = "bg-red-50/60";
-                } else if (parseInt(e.quantidade) <= parseInt(e.estoque_minimo)) {
-                    badge = `<span class="bg-amber-500 text-white px-2 py-0.5 rounded text-xs font-bold">Estoque Baixo</span>`;
-                    trStyle = "bg-amber-50/60";
-                }
-
-                tbody.innerHTML += `
-                    <tr class="border-b ${trStyle}">
-                        <td class="p-3">${e.id}</td>
-                        <td class="p-3 font-semibold">${e.nome}</td>
-                        <td class="p-3 font-bold">${e.quantidade} ${badge}</td>
-                        <td class="p-3 text-slate-500">${e.estoque_minimo}</td>
-                        <td class="p-3 acao-gestor text-right">
-                            ${parseInt(e.quantidade) > 0 ? `<button onclick="zerarEstoque(${e.id})" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded font-semibold transition mr-1">🚫 Zerar Stock</button>` : ''}
-                            <button onclick="excluirEpi(${e.id})" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded font-semibold transition">🗑️ Excluir EPI</button>
-                        </td>
-                    </tr>`;
-
-                select.innerHTML += `<option value="${e.nome}">${e.nome} (Disponível: ${e.quantidade})</option>`;
-            });
-
-            document.getElementById('cardTotalEstoque').innerText = total;
-        }
-
-        async function zerarEstoque(idEpi) {
-            if (!confirm("Tem certeza que deseja zerar o estoque deste EPI manualmente?")) return;
-            const res = await fetch('../backend/epis.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: idEpi, acao: 'zerar' })
-            });
-            const resData = await res.json();
-            alert(resData.mensagem);
-            carregarEpis();
-        }
-
-        // REMOVER / EXCLUIR EPI DEFINITIVAMENTE DO SISTEMA
-        async function excluirEpi(idEpi) {
-            if (!confirm("⚠️ ATENÇÃO: Tem certeza que deseja REMOVER este EPI do sistema? Ninguém mais poderá visualizá-lo nem retirá-lo.")) return;
-            const res = await fetch('../backend/epis.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: idEpi, acao: 'deletar' })
-            });
-            const resData = await res.json();
-            alert(resData.mensagem);
-            carregarEpis();
-        }
-
-        async function carregarHistorico() {
-            const url = usuarioLogado.perfil === 'funcionario' ? `../backend/retiradas.php?funcionario=${encodeURIComponent(usuarioLogado.nome)}` : '../backend/retiradas.php';
-            const res = await fetch(url);
-            const dados = await res.json();
-            const tbody = document.getElementById('tabelaHistorico');
-            tbody.innerHTML = '';
-            document.getElementById('cardTotalRetiradas').innerText = dados.length;
-            dados.forEach(r => {
-                tbody.innerHTML += `<tr class="border-b"><td class="p-3 font-semibold">${r.funcionario_nome}</td><td class="p-3">${r.epi_nome}</td><td class="p-3 text-slate-500">${r.data_hora}</td><td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${r.metodo}</span></td></tr>`;
-            });
-        }
-
-        async function salvarModal(e, id) {
+        // SALVAR MUDANÇA DE SENHA NO PRIMEIRO ACESSO
+        async function salvarNovaSenha(e) {
             e.preventDefault();
-            const inputs = e.target.querySelectorAll('input, select');
+            const novaSenha = document.getElementById('novaSenha').value;
+            const confirma = document.getElementById('confirmaSenha').value;
 
-            if (id === 'modalNovoFuncionario') {
-                const res = await fetch('../backend/funcionarios.php', {
+            if (novaSenha !== confirma) {
+                alert("As senhas não coincidem!");
+                return;
+            }
+
+            try {
+                const res = await fetch('../backend/mudar_senha.php', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        nome: inputs[0].value,
-                        email: inputs[1].value,
-                        matricula: inputs[2].value,
-                        codigo_cracha: inputs[3].value,
-                        setor: inputs[4].value,
-                        perfil: inputs[5].value
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: usuarioConectado.id, nova_senha: novaSenha })
                 });
-                const resData = await res.json();
-                alert(resData.mensagem);
-                carregarFuncionarios();
 
-            } else if (id === 'modalNovoEPI') {
+                const json = await res.json();
+                if (res.ok) {
+                    alert("Senha alterada com sucesso!");
+                    usuarioConectado.primeiro_acesso = 0;
+                    localStorage.setItem('usuarioConectado', JSON.stringify(usuarioConectado));
+                    document.getElementById('modalPrimeiroAcesso').classList.add('hidden');
+                    window.location.reload();
+                } else {
+                    alert(json.mensagem);
+                }
+            } catch (err) {
+                alert("Erro ao alterar a senha.");
+            }
+        }
+
+        // GESTÃO DE ESTOQUE (AJUSTAR + / -)
+        async function ajustarEstoque(id, delta) {
+            try {
                 const res = await fetch('../backend/epis.php', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        nome: inputs[0].value,
-                        quantidade: inputs[1].value,
-                        estoque_minimo: inputs[2].value
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'ajustar_estoque', id, delta })
                 });
-                const resData = await res.json();
-                alert(resData.mensagem);
-                carregarEpis();
-
-            } else if (id === 'modalRetiradaManual') {
-                const res = await fetch('../backend/retiradas.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        funcionario_nome: document.getElementById('selectFuncionario').value,
-                        epi_nome: document.getElementById('selectEPI').value,
-                        metodo: 'Lançamento Manual'
-                    })
-                });
-
-                const resData = await res.json();
-                if (!res.ok) {
-                    alert("⚠️ " + resData.mensagem);
-                    return;
+                if (res.ok) {
+                    carregarEpis();
                 }
-                alert(resData.mensagem);
-                carregarHistorico();
-                carregarEpis();
+            } catch (err) {
+                alert("Erro ao ajustar estoque.");
             }
-
-            fecharModal(id);
-            e.target.reset();
         }
 
-        document.addEventListener('DOMContentLoaded', carregarTudo);
+        // EXCLUIR EPI
+        async function excluirEpi(id) {
+            if (!confirm("Tem certeza que deseja excluir este EPI?")) return;
+            try {
+                const res = await fetch('../backend/epis.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'excluir', id })
+                });
+                if (res.ok) {
+                    carregarEpis();
+                }
+            } catch (err) {
+                alert("Erro ao excluir EPI.");
+            }
+        }
+
+        // EXCLUIR USUÁRIO
+        async function excluirUsuario(id) {
+            if (id === usuarioConectado.id) {
+                alert("Você não pode excluir a sua própria conta logada!");
+                return;
+            }
+            if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
+            try {
+                const res = await fetch('../backend/funcionarios.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ acao: 'excluir', id })
+                });
+                if (res.ok) {
+                    carregarUsuarios();
+                }
+            } catch (err) {
+                alert("Erro ao excluir usuário.");
+            }
+        }
+
+        // CARREGAR LISTA DE EPIS (GESTOR)
+        async function carregarEpis() {
+            const res = await fetch('../backend/epis.php');
+            const epis = await res.json();
+            const tbody = document.getElementById('tabelaEpis');
+            tbody.innerHTML = '';
+
+            epis.forEach(e => {
+                const baixo = parseInt(e.quantidade) <= parseInt(e.estoque_minimo);
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-slate-800">${e.nome}</td>
+                        <td class="p-4 font-bold ${baixo ? 'text-red-600' : 'text-slate-700'}">${e.quantidade} UN</td>
+                        <td class="p-4 text-slate-500">${e.estoque_minimo} UN</td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${baixo ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">${baixo ? 'ESTOQUE BAIXO' : 'OK'}</span></td>
+                        <td class="p-4 text-center space-x-1">
+                            <button onclick="ajustarEstoque(${e.id}, -1)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black px-2.5 py-1 rounded text-xs">-1</button>
+                            <button onclick="ajustarEstoque(${e.id}, 1)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black px-2.5 py-1 rounded text-xs">+1</button>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="excluirEpi(${e.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded text-xs font-bold">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // CARREGAR LISTA DE USUÁRIOS (GESTOR)
+        async function carregarUsuarios() {
+            const res = await fetch('../backend/funcionarios.php');
+            const lista = await res.json();
+            const tbody = document.getElementById('tabelaUsuarios');
+            tbody.innerHTML = '';
+
+            lista.forEach(u => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-slate-800">${u.nome}</td>
+                        <td class="p-4 text-slate-600 font-mono text-xs">${u.matricula}</td>
+                        <td class="p-4 text-slate-600">${u.email}</td>
+                        <td class="p-4 text-slate-600">${u.setor}</td>
+                        <td class="p-4 uppercase font-bold text-xs text-amber-600">${u.perfil}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="excluirUsuario(${u.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded text-xs font-bold">Excluir</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // MODAIS DE CADASTRAR EPI
+        function abrirModalEpi() { document.getElementById('modalEpi').classList.remove('hidden'); }
+        function fecharModalEpi() { document.getElementById('modalEpi').classList.add('hidden'); }
+
+        async function salvarEpi(e) {
+            e.preventDefault();
+            const dados = {
+                nome: document.getElementById('epiNome').value,
+                quantidade: document.getElementById('epiQuantidade').value,
+                estoque_minimo: document.getElementById('epiEstoqueMinimo').value
+            };
+
+            const res = await fetch('../backend/epis.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (res.ok) {
+                alert("EPI cadastrado com sucesso!");
+                fecharModalEpi();
+                carregarEpis();
+            } else {
+                alert("Erro ao cadastrar EPI.");
+            }
+        }
+
+        // DEMAIS MÉTODOS DE SOLICITAÇÃO E NAVEGAÇÃO
+        function mudarAba(aba) {
+            document.getElementById('secEstoque').classList.toggle('hidden', aba !== 'estoque');
+            document.getElementById('secUsuarios').classList.toggle('hidden', aba !== 'usuarios');
+            document.getElementById('secSolicitacoes').classList.toggle('hidden', aba !== 'solicitacoes');
+        }
+
+        async function carregarSolicitacoesGestor() {
+            const res = await fetch('../backend/solicitacoes.php');
+            const lista = await res.json();
+            const tbody = document.getElementById('tabelaGestorSolicitacoes');
+            tbody.innerHTML = '';
+
+            lista.forEach(s => {
+                let badgeClass = s.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800' : (s.status === 'recusado' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800');
+                let botoes = s.status === 'pendente' ? `
+                    <button onclick="responderSolicitacao(${s.id}, 'aprovado')" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold mr-1">Aprovar</button>
+                    <button onclick="responderSolicitacao(${s.id}, 'recusado')" class="bg-rose-600 text-white px-2 py-1 rounded text-xs font-bold">Recusar</button>
+                ` : '-';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-slate-800">${s.funcionario_nome}</td>
+                        <td class="p-4 text-slate-700">${s.epi_nome}</td>
+                        <td class="p-4 text-slate-600">${s.motivo}</td>
+                        <td class="p-4 text-slate-400 text-xs">${s.data_solicitacao}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase ${badgeClass}">${s.status}</span></td>
+                        <td class="p-4 text-center">${botoes}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function responderSolicitacao(id, status) {
+            await fetch('../backend/solicitacoes.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ acao: 'atualizar_status', id, status })
+            });
+            carregarSolicitacoesGestor();
+        }
+
+        async function enviarSolicitacao(e) {
+            e.preventDefault();
+            const epi_nome = document.getElementById('solicitarEpiNome').value;
+            const motivo = document.getElementById('solicitarMotivo').value;
+
+            const res = await fetch('../backend/solicitacoes.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    funcionario_id: usuarioConectado.id,
+                    funcionario_nome: usuarioConectado.nome,
+                    epi_nome,
+                    motivo
+                })
+            });
+
+            if (res.ok) {
+                alert("Solicitação enviada ao Gestor!");
+                carregarMinhasSolicitacoes();
+            }
+        }
+
+        async function carregarMinhasSolicitacoes() {
+            const res = await fetch(`../backend/solicitacoes.php?funcionario_id=${usuarioConectado.id}`);
+            const lista = await res.json();
+            const tbody = document.getElementById('tabelaMinhasSolicitacoes');
+            tbody.innerHTML = '';
+
+            lista.forEach(s => {
+                let badgeClass = s.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800' : (s.status === 'recusado' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800');
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 font-bold text-slate-800">${s.epi_nome}</td>
+                        <td class="p-4 text-slate-600">${s.motivo}</td>
+                        <td class="p-4 text-slate-400 text-xs">${s.data_solicitacao}</td>
+                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase ${badgeClass}">${s.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function carregarSelectEpis() {
+            const res = await fetch('../backend/epis.php');
+            const epis = await res.json();
+            const select = document.getElementById('solicitarEpiNome');
+            select.innerHTML = '<option value="">Selecione um EPI...</option>';
+            epis.forEach(e => select.innerHTML += `<option value="${e.nome}">${e.nome}</option>`);
+        }
+
+        function abrirModalUsuario() { document.getElementById('modalUsuario').classList.remove('hidden'); }
+        function fecharModalUsuario() { document.getElementById('modalUsuario').classList.add('hidden'); }
+
+        async function salvarUsuario(e) {
+            e.preventDefault();
+            const dados = {
+                nome: document.getElementById('cadNome').value,
+                email: document.getElementById('cadEmail').value,
+                matricula: document.getElementById('cadMatricula').value,
+                perfil: document.getElementById('cadPerfil').value,
+                setor: document.getElementById('cadSetor').value
+            };
+
+            const res = await fetch('../backend/funcionarios.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (res.ok) {
+                alert("Usuário cadastrado com sucesso!");
+                fecharModalUsuario();
+                carregarUsuarios();
+            }
+        }
+
+        function desconectar() {
+            localStorage.removeItem('usuarioConectado');
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
