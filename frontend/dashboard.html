@@ -5,23 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - EPI CERTO</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-    </style>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-100 min-h-screen flex flex-col relative">
 
     <!-- CABEÇALHO -->
     <header class="bg-[#0a255c] text-white border-b-4 border-[#f59e0b] shadow-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-9 h-9 bg-[#f59e0b] rounded-lg flex items-center justify-center text-[#0a255c] font-black">
-                    EPI
-                </div>
+                <div class="w-9 h-9 bg-[#f59e0b] rounded-lg flex items-center justify-center text-[#0a255c] font-black">EPI</div>
                 <div>
                     <h1 class="text-xl font-bold tracking-tight">EPI <span class="text-[#f59e0b]">CERTO</span></h1>
-                    <p class="text-xs text-slate-300">Sistema de Gestão de Equipamentos</p>
+                    <p class="text-xs text-slate-300">Controle Inteligente & NR-6</p>
                 </div>
             </div>
             <div class="flex items-center gap-4">
@@ -29,9 +26,7 @@
                     <p class="text-sm font-semibold" id="usuarioNome">Carregando...</p>
                     <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded uppercase font-bold" id="usuarioPerfil">--</span>
                 </div>
-                <button onclick="desconectar()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-3 py-2 rounded-lg font-semibold transition">
-                    Sair
-                </button>
+                <button onclick="desconectar()" class="bg-red-600/80 hover:bg-red-600 text-white text-xs px-3 py-2 rounded-lg font-semibold transition">Sair</button>
             </div>
         </div>
     </header>
@@ -41,83 +36,115 @@
 
         <!-- PAINEL DO GESTOR -->
         <div id="painelGestor" class="hidden space-y-8">
-            
-            <!-- ABAS DO GESTOR -->
             <div class="flex border-b border-slate-300 space-x-4">
                 <button onclick="mudarAba('estoque')" id="tabEstoque" class="py-2 px-4 font-bold border-b-2 border-[#0a255c] text-[#0a255c]">Estoque de EPIs</button>
+                <button onclick="mudarAba('graficos')" id="tabGraficos" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Análise & Decisão de Compra</button>
+                <button onclick="mudarAba('historico')" id="tabHistorico" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Rastreio & Histórico</button>
                 <button onclick="mudarAba('usuarios')" id="tabUsuarios" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Gestão de Usuários</button>
-                <button onclick="mudarAba('solicitacoes')" id="tabSolicitacoes" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Solicitações dos Funcionários</button>
+                <button onclick="mudarAba('solicitacoes')" id="tabSolicitacoes" class="py-2 px-4 font-semibold text-slate-600 hover:text-[#0a255c]">Solicitações Pendentes</button>
             </div>
 
-            <!-- SECÇÃO 1: ESTOQUE DA EQUIPE -->
+            <!-- ESTOQUE DA EQUIPE -->
             <div id="secEstoque" class="space-y-6">
                 <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
                     <div>
-                        <h2 class="text-lg font-bold text-slate-800">Controle de Estoque</h2>
-                        <p class="text-xs text-slate-500">Ajuste o estoque (+/-), cadastre ou remova EPIs da base de dados</p>
+                        <h2 class="text-lg font-bold text-slate-800">Estoque Geral de EPIs</h2>
+                        <p class="text-xs text-slate-500">Ative ou inative equipamentos e faça ajustes de quantidade</p>
                     </div>
-                    <button onclick="abrirModalEpi()" class="bg-[#0a255c] hover:bg-[#061739] text-white text-sm font-bold px-4 py-2 rounded-lg transition shadow">
-                        + Cadastrar Novo EPI
-                    </button>
+                    <button onclick="abrirModalEpi()" class="bg-[#0a255c] hover:bg-[#061739] text-white text-sm font-bold px-4 py-2 rounded-lg transition">+ Cadastrar Novo EPI</button>
                 </div>
-
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
                             <tr>
-                                <th class="p-4">Nome do EPI</th>
-                                <th class="p-4">Quantidade</th>
-                                <th class="p-4">Estoque Mínimo</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4 text-center">Ajuste Rápido</th>
+                                <th class="p-4">EPI</th>
+                                <th class="p-4">Qtd Atual</th>
+                                <th class="p-4">Mínimo</th>
+                                <th class="p-4">Visibilidade</th>
+                                <th class="p-4 text-center">Ajuste</th>
                                 <th class="p-4 text-center">Ação</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaEpis" class="divide-y divide-slate-100">
-                            <!-- Inserido via JS -->
-                        </tbody>
+                        <tbody id="tabelaEpis" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- SECÇÃO 2: USUÁRIOS E EQUIPE -->
-            <div id="secUsuarios" class="hidden space-y-6">
-                <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <div>
-                        <h2 class="text-lg font-bold text-slate-800">Equipe e Acessos</h2>
-                        <p class="text-xs text-slate-500">Cadastre ou remova acessos de gestores e funcionários</p>
+            <!-- ANÁLISE DE COMPRAS (GRÁFICO) -->
+            <div id="secGraficos" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-1">Indicadores de Consumo Mensal (Apoio à Compra)</h2>
+                    <p class="text-xs text-slate-500 mb-4">Acompanhe quais EPIs têm maior saída para planejar reposições de estoque</p>
+                    <div class="w-full max-w-4xl mx-auto h-80">
+                        <canvas id="graficoSaidas"></canvas>
                     </div>
-                    <button onclick="abrirModalUsuario()" class="bg-[#0a255c] hover:bg-[#061739] text-white text-sm font-bold px-4 py-2 rounded-lg transition shadow">
-                        + Cadastrar Usuário
-                    </button>
                 </div>
+            </div>
 
+            <!-- HISTÓRICO COM FILTROS DE PESQUISA -->
+            <div id="secHistorico" class="hidden space-y-6">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold text-slate-800 mb-4">Filtro de Rastreio de Retiradas</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Filtrar por Colaborador</label>
+                            <select id="filtroUsuario" onchange="carregarHistoricoComFiltro()" class="w-full border p-2 rounded-lg text-sm bg-slate-50">
+                                <option value="">Todos os Funcionários</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Filtrar por EPI</label>
+                            <select id="filtroEpi" onchange="carregarHistoricoComFiltro()" class="w-full border p-2 rounded-lg text-sm bg-slate-50">
+                                <option value="">Todos os EPIs</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="carregarHistoricoComFiltro()" class="w-full bg-[#0a255c] text-white p-2 rounded-lg font-bold text-sm">Atualizar Filtro</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
+                            <tr>
+                                <th class="p-4">Data/Hora</th>
+                                <th class="p-4">Funcionário</th>
+                                <th class="p-4">EPI Retirado</th>
+                                <th class="p-4">Justificativa</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaHistoricoFiltrado" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- GESTÃO DE USUÁRIOS -->
+            <div id="secUsuarios" class="hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                    <div><h2 class="text-lg font-bold text-slate-800">Equipe Cadastrada</h2></div>
+                    <button onclick="abrirModalUsuario()" class="bg-[#0a255c] text-white text-sm font-bold px-4 py-2 rounded-lg">+ Cadastrar Usuário</button>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 border-b border-slate-200 uppercase text-xs font-bold text-slate-600">
                             <tr>
                                 <th class="p-4">Nome</th>
                                 <th class="p-4">Matrícula</th>
                                 <th class="p-4">E-mail</th>
                                 <th class="p-4">Setor</th>
                                 <th class="p-4">Perfil</th>
-                                <th class="p-4 text-center">Ação</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaUsuarios" class="divide-y divide-slate-100">
-                            <!-- Inserido via JS -->
-                        </tbody>
+                        <tbody id="tabelaUsuarios" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- SECÇÃO 3: SOLICITAÇÕES DOS FUNCIONÁRIOS -->
+            <!-- APROVAÇÃO DE SOLICITAÇÕES -->
             <div id="secSolicitacoes" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-                    <h2 class="text-lg font-bold text-slate-800">Pedidos de Troca e Novos EPIs</h2>
-                    <p class="text-xs text-slate-500">Aprove ou recuse os pedidos feitos pela equipe</p>
+                    <h2 class="text-lg font-bold text-slate-800">Solicitações Aguardando Aprovação</h2>
                 </div>
-
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
@@ -125,14 +152,12 @@
                                 <th class="p-4">Funcionário</th>
                                 <th class="p-4">EPI Solicitado</th>
                                 <th class="p-4">Motivo</th>
-                                <th class="p-4">Data</th>
+                                <th class="p-4">Justificativa (Trava Temporal)</th>
                                 <th class="p-4">Status</th>
                                 <th class="p-4 text-center">Ação</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaGestorSolicitacoes" class="divide-y divide-slate-100">
-                            <!-- Inserido via JS -->
-                        </tbody>
+                        <tbody id="tabelaGestorSolicitacoes" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
@@ -141,34 +166,43 @@
         <!-- PAINEL DO FUNCIONÁRIO -->
         <div id="painelFuncionario" class="hidden space-y-8">
             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 max-w-2xl mx-auto">
-                <h2 class="text-lg font-bold text-slate-800 mb-1">Solicitar EPI ou Troca</h2>
-                <p class="text-xs text-slate-500 mb-6">Abra um chamado para trocar um equipamento danificado ou solicitar novo item.</p>
+                <h2 class="text-lg font-bold text-slate-800 mb-1">Solicitar Equipamento (EPI)</h2>
+                <p class="text-xs text-slate-500 mb-6">Selecione o EPI necessário para as suas atividades diárias.</p>
 
                 <form onsubmit="enviarSolicitacao(event)" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Equipamento (EPI)</label>
-                        <select id="solicitarEpiNome" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#0a255c] outline-none" required>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">EPI (Apenas Disponíveis)</label>
+                        <select id="solicitarEpiNome" onchange="verificarTravaTemporal(this.value)" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm bg-slate-50" required>
                             <option value="">Selecione um EPI...</option>
                         </select>
                     </div>
 
+                    <!-- ALERTA DE TRAVA DE SEGURANÇA E PENDÊNCIA -->
+                    <div id="boxTravaAlerta" class="hidden bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                        <p class="text-xs font-bold text-amber-800" id="msgTravaAlerta"></p>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Motivo do Pedido</label>
-                        <select id="solicitarMotivo" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm bg-slate-50 focus:bg-white focus:ring-2 focus:ring-[#0a255c] outline-none" required>
+                        <select id="solicitarMotivo" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm bg-slate-50" required>
                             <option value="Troca por Desgaste Natural">Troca por Desgaste Natural</option>
                             <option value="Equipamento Danificado / Quebrado">Equipamento Danificado / Quebrado</option>
-                            <option value="Tamanho Incorreto / Inadequado">Tamanho Incorreto / Inadequado</option>
-                            <option value="Primeiro Fornecimento / Perda">Primeiro Fornecimento / Perda</option>
+                            <option value="Perda do Equipamento">Perda do Equipamento</option>
                         </select>
                     </div>
 
-                    <button type="submit" class="w-full bg-[#0a255c] hover:bg-[#061739] text-white font-bold py-3 rounded-lg text-sm transition shadow">
+                    <div id="campoJustificativaBox" class="hidden">
+                        <label class="block text-xs font-bold text-red-600 uppercase mb-1">Justificativa Obrigatória (Retirada em menos de 21 dias)</label>
+                        <textarea id="solicitarJustificativa" rows="3" class="w-full border border-red-300 p-2.5 rounded-lg text-sm bg-red-50/30" placeholder="Descreva detalhadamente o motivo da solicitação antecipada..."></textarea>
+                    </div>
+
+                    <button type="submit" id="btnEnviarSolicitacao" class="w-full bg-[#0a255c] hover:bg-[#061739] text-white font-bold py-3 rounded-lg text-sm transition shadow disabled:bg-slate-400">
                         ENVIAR SOLICITAÇÃO
                     </button>
                 </form>
             </div>
 
-            <!-- HISTÓRICO DE SOLICITAÇÕES DO FUNCIONÁRIO -->
+            <!-- HISTÓRICO DO FUNCIONÁRIO -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden max-w-4xl mx-auto">
                 <div class="p-4 border-b border-slate-200 bg-slate-50">
                     <h3 class="font-bold text-slate-800 text-sm">Minhas Solicitações Recentes</h3>
@@ -182,118 +216,126 @@
                             <th class="p-4">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="tabelaMinhasSolicitacoes" class="divide-y divide-slate-100">
-                        <!-- Inserido via JS -->
-                    </tbody>
+                    <tbody id="tabelaMinhasSolicitacoes" class="divide-y divide-slate-100"></tbody>
                 </table>
             </div>
         </div>
 
     </main>
 
-    <!-- MODAL 1: PRIMEIRO ACESSO (MUDAR SENHA) -->
+    <!-- CHATBOT BASEADO EM MENU DE OPÇÕES (SEM DIGITAÇÃO LIVRE) -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button onclick="toggleChatbot()" class="bg-[#0a255c] hover:bg-[#f59e0b] hover:text-[#0a255c] text-white p-4 rounded-full shadow-2xl transition flex items-center gap-2 font-bold text-sm border-2 border-white">
+            💬 Assistente Virtual EPI
+        </button>
+
+        <div id="chatBotModal" class="hidden absolute bottom-16 right-0 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[420px]">
+            <!-- CABEÇALHO DO CHATBOT -->
+            <div class="bg-[#0a255c] text-white p-3 flex justify-between items-center text-xs font-bold">
+                <span>🤖 IA Suporte NR-6 & EPI CERTO</span>
+                <button onclick="toggleChatbot()" class="text-amber-400 font-bold text-sm">✕</button>
+            </div>
+
+            <!-- HISTÓRICO DE MENSAGENS DO CHAT -->
+            <div id="chatMessages" class="p-3 flex-1 overflow-y-auto space-y-3 text-xs bg-slate-50">
+                <div class="bg-slate-200 text-slate-800 p-2.5 rounded-xl max-w-[90%] leading-relaxed">
+                    Olá! Sou o assistente do <strong>EPI CERTO</strong>. Escolha um dos tópicos abaixo para tirar a sua dúvida:
+                </div>
+            </div>
+
+            <!-- ÁREA DE BOTÕES / OPÇÕES CLICÁVEIS -->
+            <div id="chatOptionsArea" class="p-2 border-t bg-white flex flex-col gap-1.5 max-h-48 overflow-y-auto">
+                <button onclick="selecionarOpcaoChat('pedir')" class="w-full text-left bg-slate-100 hover:bg-[#0a255c] hover:text-white text-slate-700 p-2 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+                    📦 Como solicitar um novo EPI?
+                </button>
+                <button onclick="selecionarOpcaoChat('perda')" class="w-full text-left bg-slate-100 hover:bg-[#0a255c] hover:text-white text-slate-700 p-2 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+                    ⚠️ Perdi ou danifiquei meu EPI
+                </button>
+                <button onclick="selecionarOpcaoChat('prazo')" class="w-full text-left bg-slate-100 hover:bg-[#0a255c] hover:text-white text-slate-700 p-2 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+                    ⏱️ Qual o prazo de troca? (21 dias)
+                </button>
+                <button onclick="selecionarOpcaoChat('nr6')" class="w-full text-left bg-slate-100 hover:bg-[#0a255c] hover:text-white text-slate-700 p-2 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+                    📜 O que diz a Norma Regulamentadora NR-6?
+                </button>
+                <button onclick="selecionarOpcaoChat('caixa')" class="w-full text-left bg-slate-100 hover:bg-[#0a255c] hover:text-white text-slate-700 p-2 rounded-lg font-medium transition text-xs flex items-center gap-1.5">
+                    🔒 Como funciona a Caixa Inteligente?
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PRIMEIRO ACESSO -->
     <div id="modalPrimeiroAcesso" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border-t-8 border-amber-500">
             <h3 class="text-xl font-extrabold text-slate-900 mb-2">Primeiro Acesso Detectado!</h3>
-            <p class="text-sm text-slate-600 mb-6">Por motivos de segurança, crie uma nova senha individual antes de acessar o sistema.</p>
-            
+            <p class="text-sm text-slate-600 mb-6">Defina uma nova senha individual com criptografia de segurança.</p>
             <form onsubmit="salvarNovaSenha(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nova Senha</label>
-                    <input type="password" id="novaSenha" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500" required placeholder="Digite sua nova senha">
+                    <input type="password" id="novaSenha" class="w-full border p-2.5 rounded-lg text-sm" required>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Confirme a Nova Senha</label>
-                    <input type="password" id="confirmaSenha" class="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:ring-2 focus:ring-amber-500" required placeholder="Repita a nova senha">
+                    <input type="password" id="confirmaSenha" class="w-full border p-2.5 rounded-lg text-sm" required>
                 </div>
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-lg text-sm transition shadow">
-                    ATUALIZAR SENHA E ENTRAR
-                </button>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black py-3 rounded-lg text-sm">CRIAR SENHA</button>
             </form>
         </div>
     </div>
 
-    <!-- MODAL 2: NOVO USUÁRIO -->
+    <!-- MODAL NOVO USUÁRIO -->
     <div id="modalUsuario" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center p-4 z-40">
         <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
             <h3 class="text-lg font-bold text-slate-800 mb-4">Cadastrar Novo Usuário</h3>
             <form onsubmit="salvarUsuario(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nome Completo</label>
-                    <input type="text" id="cadNome" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Ex: Carlos Silva" required oninput="gerarEmailAutomatico(this.value)">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">E-mail de Acesso (Gerado Automático)</label>
-                    <input type="email" id="cadEmail" class="w-full border p-2.5 rounded-lg text-sm bg-slate-50" placeholder="carlos.silva@empresa.com" required>
-                </div>
+                <input type="text" id="cadNome" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Nome Completo" required oninput="gerarEmailAutomatico(this.value)">
+                <input type="email" id="cadEmail" class="w-full border p-2.5 rounded-lg text-sm bg-slate-50" placeholder="E-mail Automático" required>
                 <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Matrícula</label>
-                        <input type="text" id="cadMatricula" class="w-full border p-2.5 rounded-lg text-sm" placeholder="MAT003" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Perfil</label>
-                        <select id="cadPerfil" class="w-full border p-2.5 rounded-lg text-sm bg-white">
-                            <option value="funcionario">Funcionário</option>
-                            <option value="gestor">Gestor</option>
-                        </select>
-                    </div>
+                    <input type="text" id="cadMatricula" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Matrícula" required>
+                    <select id="cadPerfil" class="w-full border p-2.5 rounded-lg text-sm"><option value="funcionario">Funcionário</option><option value="gestor">Gestor</option></select>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Setor</label>
-                    <select id="cadSetor" class="w-full border p-2.5 rounded-lg text-sm bg-white" required>
-                        <option value="Produção">Produção</option>
-                        <option value="Manutenção">Manutenção</option>
-                        <option value="Logística">Logística</option>
-                        <option value="TI / Gestão">TI / Gestão</option>
-                        <option value="Segurança do Trabalho">Segurança do Trabalho</option>
-                    </select>
+                <select id="cadSetor" class="w-full border p-2.5 rounded-lg text-sm" required>
+                    <option value="Produção">Produção</option>
+                    <option value="Manutenção">Manutenção</option>
+                    <option value="Logística">Logística</option>
+                    <option value="TI / Gestão">TI / Gestão</option>
+                </select>
+                <div class="flex justify-end gap-2 pt-4">
+                    <button type="button" onclick="fecharModalUsuario()" class="px-4 py-2 text-xs font-bold text-slate-500">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-[#0a255c] text-white rounded-lg">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO EPI -->
+    <div id="modalEpi" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center p-4 z-40">
+        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Cadastrar Novo EPI</h3>
+            <form onsubmit="salvarEpi(event)" class="space-y-3">
+                <input type="text" id="epiNome" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Nome do EPI" required>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="epiQuantidade" min="0" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Quantidade" required>
+                    <input type="number" id="epiEstoqueMinimo" min="1" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Mínimo" required>
                 </div>
                 <div class="flex justify-end gap-2 pt-4">
-                    <button type="button" onclick="fecharModalUsuario()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
+                    <button type="button" onclick="fecharModalEpi()" class="px-4 py-2 text-xs font-bold text-slate-500">Cancelar</button>
                     <button type="submit" class="px-4 py-2 text-xs font-bold bg-[#0a255c] text-white rounded-lg">Cadastrar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL 3: CADASTRAR NOVO EPI -->
-    <div id="modalEpi" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center p-4 z-40">
-        <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl">
-            <h3 class="text-lg font-bold text-slate-800 mb-4">Cadastrar Novo EPI</h3>
-            <form onsubmit="salvarEpi(event)" class="space-y-3">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nome do Equipamento</label>
-                    <input type="text" id="epiNome" class="w-full border p-2.5 rounded-lg text-sm" placeholder="Ex: Protetor Auricular Tipo Concha" required>
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Quantidade Inicial</label>
-                        <input type="number" id="epiQuantidade" min="0" class="w-full border p-2.5 rounded-lg text-sm" placeholder="50" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Estoque Mínimo</label>
-                        <input type="number" id="epiEstoqueMinimo" min="1" class="w-full border p-2.5 rounded-lg text-sm" placeholder="10" required>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 pt-4">
-                    <button type="button" onclick="fecharModalEpi()" class="px-4 py-2 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-[#0a255c] text-white rounded-lg">Cadastrar EPI</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT INTEGRADO -->
+    <!-- JAVASCRIPT PRINCIPAL DA INTERFACE E LÓGICA DO CHATBOT -->
     <script>
         let usuarioConectado = null;
+        let bloqueioTravaAtivo = false;
+        let pendenciaExistente = false;
+        let meuGrafico = null;
 
         window.onload = function() {
             const sessao = localStorage.getItem('usuarioConectado');
-            if (!sessao) {
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!sessao) { window.location.href = 'login.html'; return; }
 
             usuarioConectado = JSON.parse(sessao);
             document.getElementById('usuarioNome').innerText = usuarioConectado.nome;
@@ -309,118 +351,78 @@
                 carregarEpis();
                 carregarUsuarios();
                 carregarSolicitacoesGestor();
+                carregarFiltrosSelects();
+                carregarHistoricoComFiltro();
+                renderizarGraficoCompras();
             } else {
                 document.getElementById('painelFuncionario').classList.remove('hidden');
-                carregarSelectEpis();
+                carregarSelectEpisAtivos();
                 carregarMinhasSolicitacoes();
             }
         };
 
-        // GERAÇÃO AUTOMÁTICA DE E-MAIL (nome.sobrenome@empresa.com)
+        // CHATBOT INTERATIVO BASEADO EM MENU DE BOTÕES
+        function toggleChatbot() { 
+            document.getElementById('chatBotModal').classList.toggle('hidden'); 
+        }
+
+        function selecionarOpcaoChat(opcao) {
+            const box = document.getElementById('chatMessages');
+            let perguntaTexto = "";
+            let respostaTexto = "";
+
+            switch (opcao) {
+                case 'pedir':
+                    perguntaTexto = "📦 Como solicitar um novo EPI?";
+                    respostaTexto = "Para solicitar um EPI: escolha o item no campo <strong>'Solicitar Equipamento'</strong>, selecione o motivo e clique em <strong>ENVIAR SOLICITAÇÃO</strong>. O Gestor receberá o seu pedido instantaneamente.";
+                    break;
+                case 'perda':
+                    perguntaTexto = "⚠️ Perdi ou danifiquei meu EPI";
+                    respostaTexto = "Em caso de perda ou dano, faça o pedido normalmente no painel. Caso tenha retirado o mesmo item há menos de 21 dias, é <strong>obrigatório preencher a justificativa escrita</strong>.";
+                    break;
+                case 'prazo':
+                    perguntaTexto = "⏱️ Qual o prazo de troca?";
+                    respostaTexto = "O sistema aplica uma trava temporal de <strong>21 dias (3 semanas)</strong> entre substituições do mesmo EPI. Pedidos feitos antes desse prazo exigem aprovação especial do Gestor mediante justificativa.";
+                    break;
+                case 'nr6':
+                    perguntaTexto = "📜 O que diz a NR-6?";
+                    respostaTexto = "A <strong>NR-6</strong> determina que a empresa é obrigada a fornecer gratuitamente o EPI adequado ao risco, enquanto o trabalhador tem a obrigação legal de utilizá-lo e comunicar qualquer alteração.";
+                    break;
+                case 'caixa':
+                    perguntaTexto = "🔒 Como funciona a Caixa Inteligente?";
+                    respostaTexto = "A Caixa Inteligente libera a gaveta automaticamente após o Gestor aprovar a sua solicitação. O acesso físico na empresa é feito aproximando o seu <strong>crachá RFID/NFC</strong> no leitor do equipamento.";
+                    break;
+            }
+
+            // Adiciona a pergunta clicada pelo usuário
+            box.innerHTML += `<div class="bg-[#0a255c] text-white p-2.5 rounded-xl ml-auto max-w-[85%] font-medium">${perguntaTexto}</div>`;
+
+            // Resposta automática da IA após pequeno delay
+            setTimeout(() => {
+                box.innerHTML += `<div class="bg-slate-200 text-slate-800 p-2.5 rounded-xl max-w-[90%] leading-relaxed">${respostaTexto}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 300);
+        }
+
+        // DEMAIS MÉTODOS DE FUNCIONAMENTO DO SISTEMA
         function gerarEmailAutomatico(nome) {
             const inputEmail = document.getElementById('cadEmail');
-            if (!nome.trim()) {
-                inputEmail.value = '';
-                return;
-            }
+            if (!nome.trim()) { inputEmail.value = ''; return; }
             const limpo = nome.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
             const partes = limpo.split(/\s+/).filter(p => p.length > 0);
-            
-            if (partes.length === 1) {
-                inputEmail.value = `${partes[0]}@empresa.com`;
-            } else if (partes.length > 1) {
-                inputEmail.value = `${partes[0]}.${partes[partes.length - 1]}@empresa.com`;
-            }
+            inputEmail.value = partes.length === 1 ? `${partes[0]}@empresa.com` : `${partes[0]}.${partes[partes.length - 1]}@empresa.com`;
         }
 
-        // SALVAR MUDANÇA DE SENHA NO PRIMEIRO ACESSO
-        async function salvarNovaSenha(e) {
-            e.preventDefault();
-            const novaSenha = document.getElementById('novaSenha').value;
-            const confirma = document.getElementById('confirmaSenha').value;
-
-            if (novaSenha !== confirma) {
-                alert("As senhas não coincidem!");
-                return;
-            }
-
-            try {
-                const res = await fetch('../backend/mudar_senha.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: usuarioConectado.id, nova_senha: novaSenha })
-                });
-
-                const json = await res.json();
-                if (res.ok) {
-                    alert("Senha alterada com sucesso!");
-                    usuarioConectado.primeiro_acesso = 0;
-                    localStorage.setItem('usuarioConectado', JSON.stringify(usuarioConectado));
-                    document.getElementById('modalPrimeiroAcesso').classList.add('hidden');
-                    window.location.reload();
-                } else {
-                    alert(json.mensagem);
-                }
-            } catch (err) {
-                alert("Erro ao alterar a senha.");
-            }
+        async function alternarStatusEpi(id, statusAtual) {
+            const novoStatus = statusAtual === 'ativo' ? 'inativo' : 'ativo';
+            await fetch('../backend/epis.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ acao: 'alternar_status', id, novo_status: novoStatus })
+            });
+            carregarEpis();
         }
 
-        // GESTÃO DE ESTOQUE (AJUSTAR + / -)
-        async function ajustarEstoque(id, delta) {
-            try {
-                const res = await fetch('../backend/epis.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ acao: 'ajustar_estoque', id, delta })
-                });
-                if (res.ok) {
-                    carregarEpis();
-                }
-            } catch (err) {
-                alert("Erro ao ajustar estoque.");
-            }
-        }
-
-        // EXCLUIR EPI
-        async function excluirEpi(id) {
-            if (!confirm("Tem certeza que deseja excluir este EPI?")) return;
-            try {
-                const res = await fetch('../backend/epis.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ acao: 'excluir', id })
-                });
-                if (res.ok) {
-                    carregarEpis();
-                }
-            } catch (err) {
-                alert("Erro ao excluir EPI.");
-            }
-        }
-
-        // EXCLUIR USUÁRIO
-        async function excluirUsuario(id) {
-            if (id === usuarioConectado.id) {
-                alert("Você não pode excluir a sua própria conta logada!");
-                return;
-            }
-            if (!confirm("Tem certeza que deseja excluir este usuário?")) return;
-            try {
-                const res = await fetch('../backend/funcionarios.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ acao: 'excluir', id })
-                });
-                if (res.ok) {
-                    carregarUsuarios();
-                }
-            } catch (err) {
-                alert("Erro ao excluir usuário.");
-            }
-        }
-
-        // CARREGAR LISTA DE EPIS (GESTOR)
         async function carregarEpis() {
             const res = await fetch('../backend/epis.php');
             const epis = await res.json();
@@ -429,136 +431,196 @@
 
             epis.forEach(e => {
                 const baixo = parseInt(e.quantidade) <= parseInt(e.estoque_minimo);
+                const isAtivo = e.status === 'ativo';
                 tbody.innerHTML += `
-                    <tr>
+                    <tr class="${!isAtivo ? 'opacity-50 bg-slate-50' : ''}">
                         <td class="p-4 font-bold text-slate-800">${e.nome}</td>
                         <td class="p-4 font-bold ${baixo ? 'text-red-600' : 'text-slate-700'}">${e.quantidade} UN</td>
                         <td class="p-4 text-slate-500">${e.estoque_minimo} UN</td>
-                        <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${baixo ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">${baixo ? 'ESTOQUE BAIXO' : 'OK'}</span></td>
+                        <td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${isAtivo ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}">${isAtivo ? 'ATIVO' : 'INATIVO'}</span></td>
                         <td class="p-4 text-center space-x-1">
-                            <button onclick="ajustarEstoque(${e.id}, -1)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black px-2.5 py-1 rounded text-xs">-1</button>
-                            <button onclick="ajustarEstoque(${e.id}, 1)" class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-black px-2.5 py-1 rounded text-xs">+1</button>
+                            <button onclick="ajustarEstoque(${e.id}, -1)" class="bg-slate-200 text-slate-800 px-2 py-1 rounded text-xs font-bold">-1</button>
+                            <button onclick="ajustarEstoque(${e.id}, 1)" class="bg-slate-200 text-slate-800 px-2 py-1 rounded text-xs font-bold">+1</button>
                         </td>
                         <td class="p-4 text-center">
-                            <button onclick="excluirEpi(${e.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded text-xs font-bold">Excluir</button>
+                            <button onclick="alternarStatusEpi(${e.id}, '${e.status}')" class="px-3 py-1 rounded text-xs font-bold ${isAtivo ? 'bg-amber-100 text-amber-800 hover:bg-amber-200' : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'}">
+                                ${isAtivo ? 'Inativar' : 'Ativar'}
+                            </button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        // CARREGAR LISTA DE USUÁRIOS (GESTOR)
-        async function carregarUsuarios() {
-            const res = await fetch('../backend/funcionarios.php');
-            const lista = await res.json();
-            const tbody = document.getElementById('tabelaUsuarios');
-            tbody.innerHTML = '';
-
-            lista.forEach(u => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-800">${u.nome}</td>
-                        <td class="p-4 text-slate-600 font-mono text-xs">${u.matricula}</td>
-                        <td class="p-4 text-slate-600">${u.email}</td>
-                        <td class="p-4 text-slate-600">${u.setor}</td>
-                        <td class="p-4 uppercase font-bold text-xs text-amber-600">${u.perfil}</td>
-                        <td class="p-4 text-center">
-                            <button onclick="excluirUsuario(${u.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded text-xs font-bold">Excluir</button>
-                        </td>
-                    </tr>
-                `;
-            });
+        async function carregarSelectEpisAtivos() {
+            const res = await fetch('../backend/epis.php?somente_ativos=1');
+            const epis = await res.json();
+            const select = document.getElementById('solicitarEpiNome');
+            select.innerHTML = '<option value="">Selecione um EPI...</option>';
+            epis.forEach(e => select.innerHTML += `<option value="${e.nome}">${e.nome}</option>`);
         }
 
-        // MODAIS DE CADASTRAR EPI
-        function abrirModalEpi() { document.getElementById('modalEpi').classList.remove('hidden'); }
-        function fecharModalEpi() { document.getElementById('modalEpi').classList.add('hidden'); }
+        async function verificarTravaTemporal(epiNome) {
+            const boxAlerta = document.getElementById('boxTravaAlerta');
+            const boxJustificativa = document.getElementById('campoJustificativaBox');
+            const btnSubmit = document.getElementById('btnEnviarSolicitacao');
 
-        async function salvarEpi(e) {
-            e.preventDefault();
-            const dados = {
-                nome: document.getElementById('epiNome').value,
-                quantidade: document.getElementById('epiQuantidade').value,
-                estoque_minimo: document.getElementById('epiEstoqueMinimo').value
-            };
-
-            const res = await fetch('../backend/epis.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
-            });
-
-            if (res.ok) {
-                alert("EPI cadastrado com sucesso!");
-                fecharModalEpi();
-                carregarEpis();
-            } else {
-                alert("Erro ao cadastrar EPI.");
+            if (!epiNome) {
+                boxAlerta.classList.add('hidden');
+                boxJustificativa.classList.add('hidden');
+                btnSubmit.disabled = false;
+                bloqueioTravaAtivo = false;
+                pendenciaExistente = false;
+                return;
             }
-        }
 
-        // DEMAIS MÉTODOS DE SOLICITAÇÃO E NAVEGAÇÃO
-        function mudarAba(aba) {
-            document.getElementById('secEstoque').classList.toggle('hidden', aba !== 'estoque');
-            document.getElementById('secUsuarios').classList.toggle('hidden', aba !== 'usuarios');
-            document.getElementById('secSolicitacoes').classList.toggle('hidden', aba !== 'solicitacoes');
-        }
+            const res = await fetch(`../backend/retiradas.php?acao=checar_trava&funcionario_id=${usuarioConectado.id}&epi_nome=${encodeURIComponent(epiNome)}`);
+            const data = await res.json();
 
-        async function carregarSolicitacoesGestor() {
-            const res = await fetch('../backend/solicitacoes.php');
-            const lista = await res.json();
-            const tbody = document.getElementById('tabelaGestorSolicitacoes');
-            tbody.innerHTML = '';
-
-            lista.forEach(s => {
-                let badgeClass = s.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800' : (s.status === 'recusado' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800');
-                let botoes = s.status === 'pendente' ? `
-                    <button onclick="responderSolicitacao(${s.id}, 'aprovado')" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold mr-1">Aprovar</button>
-                    <button onclick="responderSolicitacao(${s.id}, 'recusado')" class="bg-rose-600 text-white px-2 py-1 rounded text-xs font-bold">Recusar</button>
-                ` : '-';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-800">${s.funcionario_nome}</td>
-                        <td class="p-4 text-slate-700">${s.epi_nome}</td>
-                        <td class="p-4 text-slate-600">${s.motivo}</td>
-                        <td class="p-4 text-slate-400 text-xs">${s.data_solicitacao}</td>
-                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase ${badgeClass}">${s.status}</span></td>
-                        <td class="p-4 text-center">${botoes}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        async function responderSolicitacao(id, status) {
-            await fetch('../backend/solicitacoes.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ acao: 'atualizar_status', id, status })
-            });
-            carregarSolicitacoesGestor();
+            if (data.pendente_existente) {
+                pendenciaExistente = true;
+                bloqueioTravaAtivo = false;
+                document.getElementById('msgTravaAlerta').innerText = data.mensagem;
+                boxAlerta.classList.remove('hidden');
+                boxJustificativa.classList.add('hidden');
+                btnSubmit.disabled = true;
+            } else if (data.bloqueado) {
+                pendenciaExistente = false;
+                bloqueioTravaAtivo = true;
+                document.getElementById('msgTravaAlerta').innerText = `Última retirada deste EPI feita em ${data.ultima_data} (menos de 21 dias). É obrigatório preencher a justificativa escrita.`;
+                boxAlerta.classList.remove('hidden');
+                boxJustificativa.classList.remove('hidden');
+                document.getElementById('solicitarJustificativa').required = true;
+                btnSubmit.disabled = false;
+            } else {
+                pendenciaExistente = false;
+                bloqueioTravaAtivo = false;
+                boxAlerta.classList.add('hidden');
+                boxJustificativa.classList.add('hidden');
+                document.getElementById('solicitarJustificativa').required = false;
+                btnSubmit.disabled = false;
+            }
         }
 
         async function enviarSolicitacao(e) {
             e.preventDefault();
+            const btnSubmit = document.getElementById('btnEnviarSolicitacao');
             const epi_nome = document.getElementById('solicitarEpiNome').value;
             const motivo = document.getElementById('solicitarMotivo').value;
+            const justificativa = document.getElementById('solicitarJustificativa').value;
 
-            const res = await fetch('../backend/solicitacoes.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    funcionario_id: usuarioConectado.id,
-                    funcionario_nome: usuarioConectado.nome,
-                    epi_nome,
-                    motivo
-                })
+            if (pendenciaExistente) {
+                alert("Você já possui um pedido pendente para este EPI. Aguarde o gestor responder antes de tentar novamente.");
+                return;
+            }
+
+            if (bloqueioTravaAtivo && !justificativa.trim()) {
+                alert("O campo de justificativa é obrigatório para retiradas com menos de 21 dias!");
+                return;
+            }
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerText = "ENVIANDO...";
+
+            try {
+                const res = await fetch('../backend/solicitacoes.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        funcionario_id: usuarioConectado.id,
+                        funcionario_nome: usuarioConectado.nome,
+                        epi_nome,
+                        motivo,
+                        justificativa
+                    })
+                });
+
+                const json = await res.json();
+
+                if (res.ok) {
+                    alert("Solicitação enviada com sucesso!");
+                    document.getElementById('solicitarEpiNome').value = '';
+                    document.getElementById('solicitarJustificativa').value = '';
+                    verificarTravaTemporal('');
+                    carregarMinhasSolicitacoes();
+                } else {
+                    alert(json.mensagem);
+                }
+            } catch (err) {
+                alert("Erro de conexão ao enviar solicitação.");
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.innerText = "ENVIAR SOLICITAÇÃO";
+            }
+        }
+
+        async function carregarFiltrosSelects() {
+            const resFunc = await fetch('../backend/funcionarios.php');
+            const funcs = await resFunc.json();
+            const selectFunc = document.getElementById('filtroUsuario');
+            funcs.forEach(f => selectFunc.innerHTML += `<option value="${f.id}">${f.nome} (${f.matricula})</option>`);
+
+            const resEpi = await fetch('../backend/epis.php');
+            const epis = await resEpi.json();
+            const selectEpi = document.getElementById('filtroEpi');
+            epis.forEach(e => selectEpi.innerHTML += `<option value="${e.nome}">${e.nome}</option>`);
+        }
+
+        async function carregarHistoricoComFiltro() {
+            const funcId = document.getElementById('filtroUsuario').value;
+            const epiNome = document.getElementById('filtroEpi').value;
+
+            const res = await fetch(`../backend/retiradas.php?funcionario_id=${funcId}&epi_nome=${encodeURIComponent(epiNome)}`);
+            const lista = await res.json();
+            const tbody = document.getElementById('tabelaHistoricoFiltrado');
+            tbody.innerHTML = '';
+
+            lista.forEach(r => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="p-4 text-xs font-mono text-slate-500">${r.data_hora}</td>
+                        <td class="p-4 font-bold text-slate-800">${r.funcionario_nome}</td>
+                        <td class="p-4 font-bold text-slate-700">${r.epi_nome}</td>
+                        <td class="p-4 text-slate-600 text-xs">${r.justificativa ? r.justificativa : '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function renderizarGraficoCompras() {
+            const res = await fetch('../backend/retiradas.php?acao=grafico');
+            const dados = await res.json();
+
+            const meses = [...new Set(dados.map(d => d.mes))];
+            const episUnicos = [...new Set(dados.map(d => d.epi_nome))];
+
+            const datasets = episUnicos.map((epi, i) => {
+                const cores = ['#0a255c', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
+                return {
+                    label: epi,
+                    data: meses.map(m => {
+                        const item = dados.find(d => d.mes === m && d.epi_nome === epi);
+                        return item ? parseInt(item.total) : 0;
+                    }),
+                    backgroundColor: cores[i % cores.length]
+                };
             });
 
-            if (res.ok) {
-                alert("Solicitação enviada ao Gestor!");
-                carregarMinhasSolicitacoes();
-            }
+            const ctx = document.getElementById('graficoSaidas').getContext('2d');
+            if (meuGrafico) meuGrafico.destroy();
+            meuGrafico = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: meses.length ? meses : ['Sem Dados'], datasets },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function mudarAba(aba) {
+            document.getElementById('secEstoque').classList.toggle('hidden', aba !== 'estoque');
+            document.getElementById('secGraficos').classList.toggle('hidden', aba !== 'graficos');
+            document.getElementById('secHistorico').classList.toggle('hidden', aba !== 'historico');
+            document.getElementById('secUsuarios').classList.toggle('hidden', aba !== 'usuarios');
+            document.getElementById('secSolicitacoes').classList.toggle('hidden', aba !== 'solicitacoes');
         }
 
         async function carregarMinhasSolicitacoes() {
@@ -566,58 +628,73 @@
             const lista = await res.json();
             const tbody = document.getElementById('tabelaMinhasSolicitacoes');
             tbody.innerHTML = '';
-
             lista.forEach(s => {
                 let badgeClass = s.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800' : (s.status === 'recusado' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800');
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-4 font-bold text-slate-800">${s.epi_nome}</td>
-                        <td class="p-4 text-slate-600">${s.motivo}</td>
-                        <td class="p-4 text-slate-400 text-xs">${s.data_solicitacao}</td>
-                        <td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase ${badgeClass}">${s.status}</span></td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr><td class="p-4 font-bold text-slate-800">${s.epi_nome}</td><td class="p-4 text-slate-600">${s.motivo}</td><td class="p-4 text-slate-400 text-xs">${s.data_solicitacao}</td><td class="p-4"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold uppercase ${badgeClass}">${s.status}</span></td></tr>`;
             });
         }
 
-        async function carregarSelectEpis() {
-            const res = await fetch('../backend/epis.php');
-            const epis = await res.json();
-            const select = document.getElementById('solicitarEpiNome');
-            select.innerHTML = '<option value="">Selecione um EPI...</option>';
-            epis.forEach(e => select.innerHTML += `<option value="${e.nome}">${e.nome}</option>`);
+        async function carregarSolicitacoesGestor() {
+            const res = await fetch('../backend/solicitacoes.php');
+            const lista = await res.json();
+            const tbody = document.getElementById('tabelaGestorSolicitacoes');
+            tbody.innerHTML = '';
+            lista.forEach(s => {
+                let badgeClass = s.status === 'aprovado' ? 'bg-emerald-100 text-emerald-800' : (s.status === 'recusado' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800');
+                let botoes = s.status === 'pendente' ? `<button onclick="responderSolicitacao(${s.id}, 'aprovado')" class="bg-emerald-600 text-white px-2 py-1 rounded text-xs font-bold mr-1">Aprovar</button><button onclick="responderSolicitacao(${s.id}, 'recusado')" class="bg-rose-600 text-white px-2 py-1 rounded text-xs font-bold">Recusar</button>` : '-';
+                tbody.innerHTML += `<tr><td class="p-4 font-bold text-slate-800">${s.funcionario_nome}</td><td class="p-4 text-slate-700">${s.epi_nome}</td><td class="p-4 text-slate-600">${s.motivo}</td><td class="p-4 text-red-600 text-xs font-semibold">${s.justificativa ? s.justificativa : 'Período Regular (>21 dias)'}</td><td class="p-4"><span class="px-2 py-1 rounded text-xs font-bold ${badgeClass}">${s.status}</span></td><td class="p-4 text-center">${botoes}</td></tr>`;
+            });
+        }
+
+        async function responderSolicitacao(id, status) {
+            await fetch('../backend/solicitacoes.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'atualizar_status', id, status }) });
+            carregarSolicitacoesGestor();
+            carregarEpis();
+            renderizarGraficoCompras();
+        }
+
+        async function ajustarEstoque(id, delta) {
+            await fetch('../backend/epis.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'ajustar_estoque', id, delta }) });
+            carregarEpis();
+        }
+
+        async function carregarUsuarios() {
+            const res = await fetch('../backend/funcionarios.php');
+            const lista = await res.json();
+            const tbody = document.getElementById('tabelaUsuarios');
+            tbody.innerHTML = '';
+            lista.forEach(u => { tbody.innerHTML += `<tr><td class="p-4 font-bold text-slate-800">${u.nome}</td><td class="p-4 font-mono text-xs text-slate-600">${u.matricula}</td><td class="p-4 text-slate-600">${u.email}</td><td class="p-4 text-slate-600">${u.setor}</td><td class="p-4 uppercase font-bold text-xs text-amber-600">${u.perfil}</td></tr>`; });
         }
 
         function abrirModalUsuario() { document.getElementById('modalUsuario').classList.remove('hidden'); }
         function fecharModalUsuario() { document.getElementById('modalUsuario').classList.add('hidden'); }
+        function abrirModalEpi() { document.getElementById('modalEpi').classList.remove('hidden'); }
+        function fecharModalEpi() { document.getElementById('modalEpi').classList.add('hidden'); }
 
         async function salvarUsuario(e) {
             e.preventDefault();
-            const dados = {
-                nome: document.getElementById('cadNome').value,
-                email: document.getElementById('cadEmail').value,
-                matricula: document.getElementById('cadMatricula').value,
-                perfil: document.getElementById('cadPerfil').value,
-                setor: document.getElementById('cadSetor').value
-            };
-
-            const res = await fetch('../backend/funcionarios.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(dados)
-            });
-
-            if (res.ok) {
-                alert("Usuário cadastrado com sucesso!");
-                fecharModalUsuario();
-                carregarUsuarios();
-            }
+            const dados = { nome: document.getElementById('cadNome').value, email: document.getElementById('cadEmail').value, matricula: document.getElementById('cadMatricula').value, perfil: document.getElementById('cadPerfil').value, setor: document.getElementById('cadSetor').value };
+            await fetch('../backend/funcionarios.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+            fecharModalUsuario(); carregarUsuarios();
         }
 
-        function desconectar() {
-            localStorage.removeItem('usuarioConectado');
-            window.location.href = 'login.html';
+        async function salvarEpi(e) {
+            e.preventDefault();
+            const dados = { nome: document.getElementById('epiNome').value, quantidade: document.getElementById('epiQuantidade').value, estoque_minimo: document.getElementById('epiEstoqueMinimo').value };
+            await fetch('../backend/epis.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dados) });
+            fecharModalEpi(); carregarEpis();
         }
+
+        async function salvarNovaSenha(e) {
+            e.preventDefault();
+            const novaSenha = document.getElementById('novaSenha').value;
+            await fetch('../backend/mudar_senha.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: usuarioConectado.id, nova_senha: novaSenha }) });
+            usuarioConectado.primeiro_acesso = 0;
+            localStorage.setItem('usuarioConectado', JSON.stringify(usuarioConectado));
+            window.location.reload();
+        }
+
+        function desconectar() { localStorage.removeItem('usuarioConectado'); window.location.href = 'login.html'; }
     </script>
 </body>
 </html>
