@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha de Entrega de EPI (NR-6) - EPI CERTO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 12mm;
+            }
+            body {
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .folha-a4 {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-200 text-slate-800 font-sans antialiased">
+
+    <!-- BARRA DE AÇÕES (NÃO APARECE NO PDF) -->
+    <div class="no-print bg-[#0a255c] text-white px-6 py-4 shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <button onclick="window.close(); history.back();" class="bg-white/15 hover:bg-white/25 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                    ← Voltar ao Painel
+                </button>
+                <span class="text-sm font-semibold text-blue-100">Pré-visualização do Documento Oficial (NR-6)</span>
+            </div>
+            <button onclick="window.print()" class="bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold px-5 py-2.5 rounded-lg shadow transition flex items-center gap-2">
+                <span>Salvar em PDF / Imprimir</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- FOLHA A4 DO DOCUMENTO -->
+    <div class="folha-a4 max-w-4xl mx-auto my-8 bg-white p-10 rounded-xl shadow-lg border border-slate-300">
+        
+        <!-- CABEÇALHO DO DOCUMENTO -->
+        <div class="border-b-2 border-[#0a255c] pb-5 mb-6 flex justify-between items-start">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="bg-[#0a255c] text-white font-black px-2.5 py-1 rounded text-sm tracking-wider">EPI CERTO</span>
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-widest">Controle Inteligente & Auditoria</span>
+                </div>
+                <h1 class="text-xl font-extrabold text-slate-900 mt-3 uppercase">
+                    Ficha Individual de Controle e Entrega de EPI
+                </h1>
+                <p class="text-xs text-slate-600 mt-0.5">
+                    Documento de comprovação legal conforme Norma Regulamentadora nº 06 (Portaria MTP nº 2.175)
+                </p>
+            </div>
+            <div class="text-right text-xs text-slate-500 space-y-1">
+                <p><strong class="text-slate-700">Protocolo:</strong> <span id="docProtocolo" class="font-mono">---</span></p>
+                <p><strong class="text-slate-700">Emissão:</strong> <span id="docEmissao">---</span></p>
+            </div>
+        </div>
+
+        <!-- DADOS DO COLABORADOR -->
+        <div class="mb-6">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-[#0a255c] bg-slate-100 px-3 py-1.5 rounded-t border border-b-0 border-slate-300">
+                1. Identificação do Colaborador
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 border border-slate-300 rounded-b text-xs">
+                <div class="col-span-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Nome Completo</span>
+                    <span id="funcNome" class="font-bold text-slate-900 text-sm">Carregando...</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Matrícula</span>
+                    <span id="funcMatricula" class="font-mono font-bold text-slate-800">---</span>
+                </div>
+                <div>
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Setor / Lotação</span>
+                    <span id="funcSetor" class="font-bold text-slate-800">---</span>
+                </div>
+                <div class="col-span-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">E-mail Corporativo</span>
+                    <span id="funcEmail" class="text-slate-700">---</span>
+                </div>
+                <div class="col-span-2">
+                    <span class="block text-[10px] font-bold text-slate-400 uppercase">Credencial / Crachá RFID</span>
+                    <span id="funcCracha" class="font-mono font-semibold text-slate-700">---</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DECLARAÇÃO LEGAL NR-6 -->
+        <div class="mb-6">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-[#0a255c] bg-slate-100 px-3 py-1.5 rounded-t border border-b-0 border-slate-300">
+                2. Termo de Recebimento e Responsabilidade (NR-6)
+            </h2>
+            <div class="p-4 border border-slate-300 rounded-b text-[11px] leading-relaxed text-slate-700 text-justify space-y-2">
+                <p>
+                    Declaro ter recebido gratuitamente da empresa os Equipamentos de Proteção Individual (EPIs) discriminados na tabela abaixo, novos e em perfeitas condições de uso, com seus respectivos Certificados de Aprovação (CA) válidos junto ao Ministério do Trabalho e Emprego.
+                </p>
+                <p>
+                    Comprometo-me, nos termos do <strong>Art. 158 da CLT</strong> e do item <strong>6.7.1 da NR-6</strong>, a utilizá-los exclusivamente para a finalidade a que se destinam, responsabilizando-me pela sua guarda, higienização e conservação, e comunicando imediatamente à chefia ou ao SESMT qualquer alteração que os torne impróprios para o uso.
+                </p>
+            </div>
+        </div>
+
+        <!-- TABELA DE ENTREGAS -->
+        <div class="mb-10">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-[#0a255c] bg-slate-100 px-3 py-1.5 rounded-t border border-b-0 border-slate-300">
+                3. Registro Cronológico de Entregas e Retiradas
+            </h2>
+            <table class="w-full text-left border-collapse border border-slate-300 text-xs">
+                <thead>
+                    <tr class="bg-slate-50 text-slate-700 uppercase text-[10px] font-bold">
+                        <th class="border border-slate-300 p-2.5">Data / Hora</th>
+                        <th class="border border-slate-300 p-2.5">Equipamento (EPI)</th>
+                        <th class="border border-slate-300 p-2.5 text-center">Nº do CA</th>
+                        <th class="border border-slate-300 p-2.5">Origem / Método</th>
+                        <th class="border border-slate-300 p-2.5">Justificativa / Obs.</th>
+                        <th class="border border-slate-300 p-2.5 text-center">Autenticação</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaFichaRetiradas">
+                    <tr>
+                        <td colspan="6" class="p-4 text-center text-slate-500">Carregando histórico de entregas...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CAMPO DE ASSINATURAS -->
+        <div class="pt-8 mt-8 border-t border-slate-200 grid grid-cols-2 gap-12 text-center text-xs">
+            <div>
+                <div class="border-b border-slate-800 h-10 mb-2"></div>
+                <p id="assinaturaNome" class="font-bold text-slate-900 uppercase">Colaborador</p>
+                <p class="text-[10px] text-slate-500">Assinatura do Recebedor</p>
+            </div>
+            <div>
+                <div class="border-b border-slate-800 h-10 mb-2"></div>
+                <p class="font-bold text-slate-900 uppercase">Responsável Técnico / Gestor</p>
+                <p class="text-[10px] text-slate-500">SESMT / Engenharia de Segurança do Trabalho</p>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-3 border-t border-slate-100 text-center text-[10px] text-slate-400">
+            Registro eletrônico gerado pelo sistema EPI CERTO — Auditoria Digital em Conformidade com a NR-6.
+        </div>
+    </div>
+
+    <script>
+        async function carregarFicha() {
+            const params = new URLSearchParams(window.location.search);
+            const funcionarioId = params.get('funcionario_id');
+
+            if (!funcionarioId) {
+                alert('Funcionário não especificado.');
+                return;
+            }
+
+            try {
+                const res = await fetch(`../backend/ficha_epi.php?funcionario_id=${funcionarioId}`);
+                const data = await res.json();
+
+                if (data.status !== 'ok') {
+                    alert(data.mensagem || 'Erro ao carregar ficha.');
+                    return;
+                }
+
+                const f = data.funcionario;
+                document.getElementById('docProtocolo').innerText = `NR6-${String(f.id).padStart(4, '0')}-${new Date().getFullYear()}`;
+                document.getElementById('docEmissao').innerText = data.gerado_em;
+                document.getElementById('funcNome').innerText = f.nome;
+                document.getElementById('funcMatricula').innerText = f.matricula;
+                document.getElementById('funcSetor').innerText = f.setor;
+                document.getElementById('funcEmail').innerText = f.email;
+                document.getElementById('funcCracha').innerText = f.codigo_cracha || 'Não vinculado';
+                document.getElementById('assinaturaNome').innerText = `${f.nome} (${f.matricula})`;
+
+                const tbody = document.getElementById('tabelaFichaRetiradas');
+                tbody.innerHTML = '';
+
+                if (data.retiradas.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="border border-slate-300 p-4 text-center text-slate-500 italic">
+                                Nenhuma entrega de EPI registrada para este colaborador até o momento.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                data.retiradas.forEach(r => {
+                    const dataFormatada = new Date(r.data_hora.replace(' ', 'T')).toLocaleString('pt-BR');
+                    const hashRegistro = `DIG-${String(r.id).padStart(5, '0')}`;
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="border border-slate-300 p-2 font-mono text-[11px]">${dataFormatada}</td>
+                            <td class="border border-slate-300 p-2 font-bold text-slate-800">${r.epi_nome}</td>
+                            <td class="border border-slate-300 p-2 text-center font-mono font-bold text-[#0a255c]">${r.numero_ca}</td>
+                            <td class="border border-slate-300 p-2">${r.metodo}</td>
+                            <td class="border border-slate-300 p-2 text-slate-600">${r.justificativa || 'Entrega regular'}</td>
+                            <td class="border border-slate-300 p-2 text-center font-mono text-[10px] text-emerald-700 font-bold">${hashRegistro}</td>
+                        </tr>
+                    `;
+                });
+            } catch (err) {
+                alert('Falha de comunicação com o servidor.');
+            }
+        }
+
+        carregarFicha();
+    </script>
+</body>
+</html>

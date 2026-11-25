@@ -46,7 +46,11 @@
                 </div>
 
                 <button type="submit" class="btn-principal">ENTRAR NO SISTEMA</button>
-                <a href="#" class="forgot-link">Esqueceu a senha? Fale com o TI</a>
+                <div style="text-align: center; margin-top: 14px;">
+                    <button type="button" onclick="abrirModalEsqueciSenha()" style="background: none; border: none; color: #64748b; font-size: 12px; font-weight: 600; cursor: pointer; text-decoration: underline;">
+                        Esqueceu a senha? Fale com o TI
+                    </button>
+                </div>
             </form>
         </div>
     </main>
@@ -87,6 +91,194 @@
             } catch (erro) {
                 alert("Erro ao conectar com o servidor PHP!");
             }
+        }
+    </script>
+   <!-- MODAL RECUPERAÇÃO DE SENHA / SUPORTE TI -->
+    <style>
+        .modal-ti-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 9999;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .modal-ti-overlay.ativo {
+            display: flex;
+        }
+        .modal-ti-card {
+            background: #ffffff;
+            border-radius: 14px;
+            max-width: 420px;
+            width: 100%;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25);
+            border-top: 4px solid #0a255c;
+            color: #1e293b;
+            text-align: left;
+        }
+        .modal-ti-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .modal-ti-header h3 {
+            margin: 0;
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .modal-ti-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #94a3b8;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .modal-ti-desc {
+            font-size: 12px;
+            color: #64748b;
+            margin: 0 0 16px 0;
+            line-height: 1.4;
+        }
+        .modal-ti-group {
+            margin-bottom: 12px;
+        }
+        .modal-ti-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .modal-ti-group input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+        .modal-ti-group input:focus {
+            border-color: #0a255c;
+        }
+        .modal-ti-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 11px;
+            color: #475569;
+            margin-bottom: 16px;
+        }
+        .modal-ti-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .btn-ti-cancel {
+            background: #f1f5f9;
+            border: none;
+            color: #475569;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-ti-submit {
+            background: #0a255c;
+            border: none;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .btn-ti-submit:hover {
+            background: #061739;
+        }
+    </style>
+
+    <div id="modalEsqueciSenha" class="modal-ti-overlay">
+        <div class="modal-ti-card">
+            <div class="modal-ti-header">
+                <h3>Suporte TI — Redefinição de Senha</h3>
+                <button type="button" onclick="fecharModalEsqueciSenha()" class="modal-ti-close">&times;</button>
+            </div>
+            <p class="modal-ti-desc">
+                Informe seu e-mail corporativo ou matrícula. Um chamado será enviado imediatamente para o Gestor/TI redefinir sua credencial.
+            </p>
+
+            <form id="formEsqueciSenha" onsubmit="enviarChamadoSenha(event)">
+                <div class="modal-ti-group">
+                    <label>E-mail ou Matrícula</label>
+                    <input type="text" id="recIdentificador" placeholder="Ex: joao.silva@empresa.com ou MAT001" required>
+                </div>
+                <div class="modal-ti-group">
+                    <label>Observação (Opcional)</label>
+                    <input type="text" id="recObservacao" placeholder="Ex: Esqueci a senha após troca de turno">
+                </div>
+                <div class="modal-ti-info">
+                    <strong>Plantão TI Interno:</strong> Ramal <strong>4020</strong> • E-mail: <strong>suporte.ti@empresa.com</strong>
+                </div>
+                <div class="modal-ti-actions">
+                    <button type="button" onclick="fecharModalEsqueciSenha()" class="btn-ti-cancel">Cancelar</button>
+                    <button type="submit" class="btn-ti-submit">Solicitar Reset ao TI</button>
+                </div>
+            </form>
+
+            <div id="resultadoChamadoTi" style="display: none; text-align: center; padding: 8px 0;">
+                <div style="background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 16px; border-radius: 10px; margin-bottom: 14px;">
+                    <p style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin: 0 0 4px 0;">Chamado Registrado com Sucesso!</p>
+                    <p id="textoProtocoloTi" style="font-size: 18px; font-family: monospace; font-weight: 800; color: #0a255c; margin: 4px 0;"></p>
+                    <p id="textoDetalheTi" style="font-size: 12px; color: #334155; margin: 4px 0 0 0;"></p>
+                </div>
+                <button type="button" onclick="fecharModalEsqueciSenha()" class="btn-ti-submit" style="width: 100%;">Voltar ao Login</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirModalEsqueciSenha() {
+            document.getElementById('formEsqueciSenha').style.display = 'block';
+            document.getElementById('resultadoChamadoTi').style.display = 'none';
+            document.getElementById('formEsqueciSenha').reset();
+            document.getElementById('modalEsqueciSenha').classList.add('ativo');
+        }
+
+        function fecharModalEsqueciSenha() {
+            document.getElementById('modalEsqueciSenha').classList.remove('ativo');
+        }
+
+        async function enviarChamadoSenha(e) {
+            e.preventDefault();
+            const res = await fetch('../backend/recuperar_senha.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    acao: 'solicitar',
+                    identificador: document.getElementById('recIdentificador').value,
+                    observacao: document.getElementById('recObservacao').value
+                })
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.mensagem || 'Erro ao solicitar redefinição.');
+                return;
+            }
+            document.getElementById('formEsqueciSenha').style.display = 'none';
+            document.getElementById('textoProtocoloTi').innerText = `Protocolo: ${data.protocolo}`;
+            document.getElementById('textoDetalheTi').innerText = `Olá, ${data.nome}. O Gestor/TI já recebeu sua solicitação e pode redefinir sua senha para o padrão (123456).`;
+            document.getElementById('resultadoChamadoTi').style.display = 'block';
         }
     </script>
 </body>
